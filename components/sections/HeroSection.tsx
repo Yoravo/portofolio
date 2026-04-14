@@ -11,7 +11,7 @@ export default function HeroSection() {
   return (
     <section
       id="hero"
-      className="relative min-h-[calc(100vh-65px)] overflow-hidden px-8 pt-8"
+      className="relative min-h-[calc(100vh-65px)] overflow-hidden px-8 pt-8 pb-12"
     >
       {/* Background gradient blobs */}
       <div className="pointer-events-none absolute -top-40 -right-40 h-125px w-125px rounded-full bg-blue-100 opacity-60 blur-3xl" />

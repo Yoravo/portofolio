@@ -20,7 +20,6 @@ export default function AboutSection() {
       </motion.div>
 
       <div className="flex flex-col gap-12 md:flex-row md:items-start">
-        {/* Left — bio */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
