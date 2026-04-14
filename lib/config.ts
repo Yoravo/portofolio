@@ -1,10 +1,10 @@
 export const siteConfig = {
   title: "Radja Ravine Salfriandry - Web Developer",
-  role: "Web Developer",
+  role: "Fresh Graduate Web Developer",
   tagline:
-    "Frontend-focused developer building fast and scalable web apps, growing into full-stack.",
+    "Frontend-focused web developer who enjoys building responsive, clean, and scalable web applications with React and Next.js, while continuing to grow into full-stack development.",
   supportText:
-    "Built multiple projects using React and Next.js, with hands-on experience from an internship at Pupuk Kujang.",
+    "Built several web projects with React and Next.js, and gained hands-on industry experience through an internship at Pupuk Kujang.",
   email: "ravinesalf@gmail.com",
   location: "Karawang, Indonesia",
   github: "https://github.com/yoravo",
@@ -31,7 +31,7 @@ export const projects: Project[] = [
     slug: "Meal-App",
     title: "Meal App",
     description:
-      "A meal planning app built with React and API From themealdb to help users organize their meals and grocery shopping.",
+      "A meal planning app built with React and API From themealdb to help users organize their meals and cooking tutorials for their favorite recipes.",
     tags: ["React", "API", "Tailwind CSS"],
     github: "https://github.com/yoravo/meal-app",
     demo: "https://cmlabs-frontend-fulltime-test-nu.vercel.app",

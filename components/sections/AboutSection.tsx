@@ -32,18 +32,20 @@ export default function AboutSection() {
             <span className="font-semibold text-neutral-900">
               Radja Ravine Salfriandry
             </span>
-            , a passionate web developer based in Karawang, Indonesia. I
-            specialize in building modern, responsive, and performant web
-            applications using React and Next.js.
+            , a fresh graduate web developer based in Karawang, Indonesia. I
+            enjoy building modern, responsive, and user-friendly web
+            applications, with a current focus on React and Next.js.
           </p>
           <p className="text-base leading-relaxed text-neutral-600">
             I have experience working with both frontend and backend
-            technologies, including Laravel and PHP. I enjoy turning complex
-            problems into simple, beautiful, and intuitive digital experiences.
+            technologies, including Laravel and PHP. I&apos;m especially
+            interested in creating interfaces that are clean, functional, and
+            easy to use.
           </p>
           <p className="text-base leading-relaxed text-neutral-600">
-            When I&apos;m not coding, I&apos;m usually exploring new
-            technologies, contributing to open source, or leveling up my skills.
+            I&apos;m always looking for opportunities to learn, improve my skills,
+            and gain more real-world experience through meaningful projects and
+            collaboration.
           </p>
 
           {/* Location + CV */}

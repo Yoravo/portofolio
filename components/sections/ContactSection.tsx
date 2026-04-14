@@ -78,7 +78,8 @@ export default function ContactSection() {
           Contact
         </h2>
         <p className="text-sm text-neutral-600">
-          Have a project in mind? Let&apos;s talk.
+          Interested in working together or discussing an opportunity?
+          Let&apos;s connect.
         </p>
       </motion.div>
 
@@ -92,9 +93,9 @@ export default function ContactSection() {
           className="flex flex-col gap-6 md:w-72"
         >
           <p className="text-base leading-relaxed text-neutral-600">
-            I&apos;m currently open for freelance work and full-time
-            opportunities. Feel free to reach out if you want to collaborate or
-            just say hi!
+            I&apos;m currently open to freelance projects, internships, and full-time
+            opportunities. Feel free to reach out if you&apos;d like to collaborate
+            or connect.
           </p>
 
           <div className="flex flex-col gap-4">

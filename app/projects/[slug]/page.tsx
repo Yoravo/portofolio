@@ -30,7 +30,7 @@ export default async function ProjectDetailPage({ params }: Props) {
   if (!project) notFound()
 
   return (
-    <main className="px-8 py-16">
+    <main className="px-8 pt-4 pb-4">
 
       {/* Back button */}
       <Link
