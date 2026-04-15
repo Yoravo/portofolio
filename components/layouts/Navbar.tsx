@@ -20,6 +20,12 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
 
+  // pindah ke dalam komponen
+  const visibleLinks =
+    pathname === "/"
+      ? navLinks
+      : navLinks.filter((link) => !link.href.startsWith("/#"));
+
   useEffect(() => {
     if (pathname !== "/") return;
 
@@ -27,7 +33,6 @@ export default function Navbar() {
 
     const handleScroll = () => {
       let current = "hero";
-
       sectionIds.forEach((id) => {
         const el = document.getElementById(id);
         if (el) {
@@ -37,7 +42,6 @@ export default function Navbar() {
           }
         }
       });
-
       setActiveSection(current);
     };
 
@@ -76,7 +80,7 @@ export default function Navbar() {
 
         {/* Desktop links */}
         <ul className="hidden items-center gap-6 md:flex">
-          {navLinks.map((link) => (
+          {visibleLinks.map((link) => (
             <li key={link.href}>
               <Link
                 href={link.href}
@@ -108,7 +112,7 @@ export default function Navbar() {
       {isOpen && (
         <div className="border-t border-neutral-100 bg-white px-8 py-4 md:hidden">
           <ul className="flex flex-col gap-4">
-            {navLinks.map((link) => (
+            {visibleLinks.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
