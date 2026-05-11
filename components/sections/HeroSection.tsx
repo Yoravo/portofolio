@@ -7,54 +7,96 @@ import { motion } from "framer-motion";
 import { FaGithub, FaLinkedin, FaInstagram } from "react-icons/fa";
 import Image from "next/image";
 
+const firstName = siteConfig.title.split(" - ")[0];
+
 export default function HeroSection() {
   return (
     <section
       id="hero"
-      className="relative min-h-[calc(100vh-65px)] overflow-hidden px-8 pt-8 pb-12"
+      className="relative min-h-[calc(100vh-65px)] overflow-hidden bg-grid"
+      style={{ perspective: "var(--perspective)" }}
     >
-      {/* Background gradient blobs */}
-      <div className="pointer-events-none absolute -top-40 -right-40 h-125px w-125px rounded-full bg-blue-100 opacity-60 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-40 -left-40 h-100px w-100px rounded-full bg-purple-100 opacity-50 blur-3xl" />
+      {/* Ambient glow — pushed back in Z space */}
+      <div
+        className="pointer-events-none absolute -top-40 -right-40 h-125 w-125 rounded-full blur-[120px]"
+        style={{
+          background: "rgba(0,240,255,0.05)",
+          transform: "translateZ(-60px)",
+        }}
+      />
+      <div
+        className="pointer-events-none absolute -bottom-40 -left-40 h-100 w-100 rounded-full blur-[120px]"
+        style={{
+          background: "rgba(168,85,247,0.04)",
+          transform: "translateZ(-60px)",
+        }}
+      />
 
-      <div className="relative flex min-h-[calc(100vh-65px-160px)] flex-col justify-center md:flex-row md:items-center md:gap-16">
-        <div className="flex-1">
+      <div
+        className="relative mx-auto flex max-w-6xl min-h-[calc(100vh-65px-80px)] flex-col justify-center px-6 pt-8 pb-12 md:flex-row
+  md:items-center md:gap-16"
+      >
+        {/* Left — text content */}
+        <div className="flex-1" style={{ transformStyle: "preserve-3d" }}>
           {/* Available badge */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="mb-6 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1"
+            className="mb-6 inline-flex items-center gap-2 rounded-full px-3 py-1.5"
+            style={{
+              background: "rgba(0,255,136,0.06)",
+              border: "1px solid rgba(0,255,136,0.2)",
+              transform: "translateZ(10px)",
+            }}
           >
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
+              <span
+                className="absolute inline-flex h-full w-full rounded-full opacity-75 pulse-ring"
+                style={{ background: "var(--neon-green)" }}
+              />
+              <span
+                className="relative inline-flex h-2 w-2 rounded-full"
+                style={{ background: "var(--neon-green)" }}
+              />
             </span>
-            <span className="text-xs font-medium text-blue-700">
+            <span
+              className="text-xs font-medium"
+              style={{ color: "var(--neon-green)" }}
+            >
               Available for work
             </span>
           </motion.div>
 
-          {/* Heading */}
-          <motion.h1
+          {/* Name */}
+          <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.1 }}
-            className="mb-4 text-4xl font-bold tracking-tight text-neutral-900 sm:text-5xl md:text-6xl"
+            className="mb-4"
           >
-            <span className="text-neutral-500">Hi, I&apos;m </span>
-            <br />
-            <span className="bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              {siteConfig.title.split(" - ")[0]}
-            </span>
-          </motion.h1>
+            <p
+              className="text-lg font-medium mb-2"
+              style={{ color: "var(--text-secondary)" }}
+            >
+              Hi, I&apos;m
+            </p>
+            <h1
+              className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl glitch-text text-glow-cyan"
+              data-text={firstName}
+              style={{ color: "var(--neon-cyan)" }}
+            >
+              {firstName}
+            </h1>
+          </motion.div>
 
           {/* Role */}
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.2 }}
-            className="mb-4 text-xl font-medium text-neutral-600 sm:text-2xl"
+            className="mb-4 text-xl font-medium cursor-blink sm:text-2xl"
+            style={{ color: "var(--neon-amber)" }}
           >
             {siteConfig.role}
           </motion.p>
@@ -64,7 +106,8 @@ export default function HeroSection() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.3 }}
-            className="mb-4 max-w-xl text-base text-neutral-600 sm:text-lg"
+            className="mb-4 max-w-xl text-sm leading-relaxed sm:text-base"
+            style={{ color: "var(--text-secondary)" }}
           >
             {siteConfig.tagline}
           </motion.p>
@@ -74,12 +117,13 @@ export default function HeroSection() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.35 }}
-            className="mb-10 max-w-xl text-sm text-neutral-500"
+            className="mb-10 max-w-xl text-xs"
+            style={{ color: "var(--text-muted)" }}
           >
             {siteConfig.supportText}
           </motion.p>
 
-          {/* CTA buttons */}
+          {/* CTA */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -88,76 +132,114 @@ export default function HeroSection() {
           >
             <Link
               href="/projects"
-              className="inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-blue-600 to-purple-600 px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+              className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium transition-all duration-200
+  hover:brightness-110 glow-cyan"
+              style={{
+                background: "var(--neon-cyan)",
+                color: "var(--bg-primary)",
+              }}
             >
               View Projects <ArrowRight size={16} />
             </Link>
             <Link
               href="/#contact"
-              className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 px-5 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100"
+              className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium transition-all duration-200"
+              style={{
+                color: "var(--text-primary)",
+                border: "1px solid var(--border-subtle)",
+                background: "var(--bg-card)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = "rgba(0,240,255,0.3)";
+                e.currentTarget.style.boxShadow = "var(--depth-1)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = "var(--border-subtle)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
             >
-              Contact Me
+              <Mail size={16} /> Contact Me
             </Link>
           </motion.div>
 
-          {/* Social links */}
+          {/* Socials */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.5 }}
-            className="flex items-center gap-4"
+            className="flex items-center gap-3"
           >
-            <Link
-              href={siteConfig.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-neutral-600 transition-colors hover:text-neutral-900"
-              aria-label="GitHub"
-            >
-              <FaGithub size={20} />
-            </Link>
-            <Link
-              href={siteConfig.linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-neutral-400 transition-colors hover:text-blue-500"
-              aria-label="LinkedIn"
-            >
-              <FaLinkedin size={20} />
-            </Link>
-            <Link
-              href={`mailto:${siteConfig.email}`}
-              className="text-neutral-400 transition-colors hover:text-blue-500"
-              aria-label="Email"
-            >
-              <Mail size={20} />
-            </Link>
-            <Link
-              href={siteConfig.instagram}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-neutral-400 transition-colors hover:text-pink-500"
-              aria-label="Instagram"
-            >
-              <FaInstagram size={20} />
-            </Link>
+            {[
+              {
+                href: siteConfig.github,
+                icon: <FaGithub size={18} />,
+                hoverColor: "var(--text-primary)",
+              },
+              {
+                href: siteConfig.linkedin,
+                icon: <FaLinkedin size={18} />,
+                hoverColor: "#0a66c2",
+              },
+              {
+                href: siteConfig.instagram,
+                icon: <FaInstagram size={18} />,
+                hoverColor: "var(--neon-pink)",
+              },
+              {
+                href: `mailto:${siteConfig.email}`,
+                icon: <Mail size={18} />,
+                hoverColor: "var(--neon-cyan)",
+              },
+            ].map((s, i) => (
+              <Link
+                key={i}
+                href={s.href}
+                target={s.href.startsWith("mailto") ? undefined : "_blank"}
+                rel="noopener noreferrer"
+                className="transition-colors duration-200"
+                style={{ color: "var(--text-muted)" }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.color = s.hoverColor)
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.color = "var(--text-muted)")
+                }
+                aria-label={`Social link ${i}`}
+              >
+                {s.icon}
+              </Link>
+            ))}
           </motion.div>
         </div>
 
-        {/* Right — avatar */}
+        {/* Right — 3D avatar */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
           className="mt-12 flex shrink-0 justify-center md:mt-0"
+          style={{ perspective: "600px" }}
         >
-          <div className="relative">
-            {/* Glow */}
-            <div className="absolute inset-0 rounded-full bg-linear-to-br from-blue-400 to-purple-500 opacity-30 blur-xl" />
+          <div className="relative animate-idle-3d rounded-full">
+            {/* Glow behind avatar */}
+            <div
+              className="absolute inset-0 rounded-full blur-xl"
+              style={{
+                background: "rgba(0,240,255,0.12)",
+                transform: "translateZ(-20px)",
+              }}
+            />
 
-            {/* Gradient ring */}
-            <div className="relative rounded-full bg-linear-to-br from-blue-500 to-purple-600 p-1 shadow-2xl">
-              <div className="relative overflow-hidden rounded-full h-64 w-64 md:h-72 md:w-72">
+            {/* Avatar ring */}
+            <div
+              className="relative rounded-full p-0.5 glow-cyan-strong"
+              style={{
+                background:
+                  "linear-gradient(135deg, var(--neon-cyan), var(--neon-purple))",
+                transformStyle: "preserve-3d",
+              }}
+            >
+              <div className="relative overflow-hidden rounded-full h-56 w-56 md:h-72 md:w-72">
                 <Image
                   src={siteConfig.avatar}
                   alt="Avatar"
@@ -165,20 +247,70 @@ export default function HeroSection() {
                   height={288}
                   className="h-full w-full object-cover"
                 />
-                <div className="absolute inset-0 bg-linear-to-t from-purple-900/30 to-blue-900/10" />
+                {/* Scanline */}
+                <div
+                  className="absolute inset-0 rounded-full"
+                  style={{
+                    background:
+                      "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px)",
+                  }}
+                />
+                <div
+                  className="absolute inset-0 rounded-full"
+                  style={{
+                    background:
+                      "linear-gradient(to top, rgba(4,4,10,0.5), transparent 60%)",
+                  }}
+                />
               </div>
             </div>
 
-            {/* Floating badges */}
+            {/* Floating badge — front layer */}
             <motion.div
               animate={{ y: [0, -6, 0] }}
               transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -bottom-3 -right-3 rounded-xl bg-white px-3 py-2 shadow-lg"
+              className="absolute -bottom-3 -right-3 rounded-lg px-3 py-2 glow-cyan"
+              style={{
+                background: "var(--bg-card)",
+                border: "1px solid rgba(0,240,255,0.2)",
+                transform: "translateZ(40px)",
+                boxShadow: "var(--depth-2)",
+              }}
             >
-              <p className="text-xs font-semibold text-neutral-800">
+              <p
+                className="text-xs font-semibold"
+                style={{ color: "var(--neon-cyan)" }}
+              >
                 Next.js + React
               </p>
             </motion.div>
+
+            {/* Floating badge — middle layer */}
+            <motion.div
+              animate={{ y: [0, -5, 0] }}
+              transition={{
+                duration: 2.8,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              className="absolute -top-3 -right-3 rounded-lg px-3 py-2"
+              style={{
+                background: "var(--bg-card)",
+                border: "1px solid rgba(168,85,247,0.2)",
+                transform: "translateZ(35px)",
+                boxShadow:
+                  "0 0 15px rgba(168,85,247,0.15), 0 0 30px rgba(168,85,247,0.05)",
+              }}
+            >
+              <p
+                className="text-xs font-semibold"
+                style={{ color: "var(--neon-purple)" }}
+              >
+                Laravel
+              </p>
+            </motion.div>
+
+            {/* Floating badge — back layer */}
             <motion.div
               animate={{ y: [0, 6, 0] }}
               transition={{
@@ -186,9 +318,18 @@ export default function HeroSection() {
                 repeat: Infinity,
                 ease: "easeInOut",
               }}
-              className="absolute -top-3 -left-3 rounded-xl bg-white px-3 py-2 shadow-lg"
+              className="absolute -top-3 -left-3 rounded-lg px-3 py-2 glow-amber"
+              style={{
+                background: "var(--bg-card)",
+                border: "1px solid rgba(255,107,0,0.2)",
+                transform: "translateZ(25px)",
+                boxShadow: "var(--depth-1)",
+              }}
             >
-              <p className="text-xs font-semibold text-neutral-800">
+              <p
+                className="text-xs font-semibold"
+                style={{ color: "var(--neon-amber)" }}
+              >
                 Web Developer
               </p>
             </motion.div>

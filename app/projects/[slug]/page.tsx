@@ -2,7 +2,6 @@ import { projects } from "@/lib/config"
 import { notFound } from "next/navigation"
 import { Metadata } from "next"
 import Link from "next/link"
-import Image from "next/image"
 import { ArrowLeft, ExternalLink } from "lucide-react"
 import { FaGithub } from "react-icons/fa"
 
@@ -43,19 +42,20 @@ export default async function ProjectDetailPage({ params }: Props) {
 
       <div className="flex flex-col gap-10 lg:flex-row lg:gap-16">
 
-        {/* Left — image */}
+        {/* Left — iframe preview */}
         <div className="w-full lg:w-1/2">
-          <div className="relative aspect-video w-full overflow-hidden rounded-xl border border-neutral-100 bg-neutral-100 shadow-sm">
-            {project.image ? (
-              <Image
-                src={project.image}
-                alt={project.title}
-                fill
-                className="object-cover"
+          <div className="relative aspect-video w-full overflow-hidden rounded-xl border border-neutral-200 bg-neutral-100 shadow-sm">
+            {project.demo ? (
+              <iframe
+                src={project.demo}
+                title={`Live preview of ${project.title}`}
+                className="absolute inset-0 h-full w-full border-0"
+                loading="lazy"
+                sandbox="allow-scripts allow-same-origin"
               />
             ) : (
               <div className="flex h-full items-center justify-center">
-                <span className="text-sm text-neutral-400">No image</span>
+                <span className="text-sm text-neutral-400">No preview available</span>
               </div>
             )}
           </div>

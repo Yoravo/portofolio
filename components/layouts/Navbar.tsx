@@ -10,49 +10,51 @@ import { cn } from "@/lib/utils";
 const navLinks = [
   { href: "/", label: "Home", sectionId: "hero" },
   { href: "/#about", label: "About", sectionId: "about" },
+  { href: "/#journey", label: "Journey", sectionId: "journey" },
   { href: "/#skills", label: "Skills", sectionId: "skills" },
+  { href: "/projects", label: "Projects", sectionId: "projects" },
   { href: "/#contact", label: "Contact", sectionId: "contact" },
-  { href: "/projects", label: "Projects", sectionId: null },
 ];
 
 export default function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
+  const [scrolled, setScrolled] = useState(false);
 
-  // pindah ke dalam komponen
   const visibleLinks =
     pathname === "/"
       ? navLinks
       : navLinks.filter((link) => !link.href.startsWith("/#"));
 
   useEffect(() => {
-    if (pathname !== "/") return;
-
-    const sectionIds = ["hero", "about", "skills", "contact"];
-
     const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+
+      if (pathname !== "/") return;
+      const sectionIds = [
+        "hero",
+        "about",
+        "journey",
+        "skills",
+        "projects",
+        "contact",
+      ];
       let current = "hero";
       sectionIds.forEach((id) => {
         const el = document.getElementById(id);
-        if (el) {
-          const top = el.getBoundingClientRect().top;
-          if (top <= window.innerHeight * 0.5) {
-            current = id;
-          }
-        }
+        if (el && el.getBoundingClientRect().top <= window.innerHeight * 0.5)
+          current = id;
       });
       setActiveSection(current);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll();
-
     return () => window.removeEventListener("scroll", handleScroll);
   }, [pathname]);
 
   const isActive = (link: (typeof navLinks)[0]) => {
-    if (pathname === "/projects" && link.href === "/projects") return true;
     if (pathname !== "/" && link.href === "/projects")
       return pathname.startsWith("/projects");
     if (pathname !== "/") return false;
@@ -62,34 +64,49 @@ export default function Navbar() {
   const handleAnchorClick = (e: React.MouseEvent, href: string) => {
     if (href.startsWith("/#")) {
       e.preventDefault();
-      const id = href.replace("/#", "");
-      const el = document.getElementById(id);
+      const el = document.getElementById(href.replace("/#", ""));
       if (el) el.scrollIntoView({ behavior: "smooth" });
     }
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-neutral-400 bg-white/80 backdrop-blur-sm">
-      <nav className="mx-auto flex max-w-full items-center justify-between px-8 py-4">
-        <Link
-          href="/"
-          className="text-sm font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
-        >
-          {siteConfig.title.split(" - ")[0]}
+    <header
+      className={cn(
+        "sticky top-0 z-50 w-full transition-all duration-300",
+        scrolled ? "border-b backdrop-blur-md" : "bg-transparent",
+      )}
+      style={{
+        borderColor: scrolled ? "rgba(0,240,255,0.06)" : "transparent",
+        background: scrolled ? "rgba(4,4,10,0.85)" : "transparent",
+        boxShadow: scrolled ? "0 4px 20px rgba(0,0,0,0.4)" : "none",
+      }}
+    >
+      <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2">
+          <span
+            className="text-xs font-bold tracking-widest uppercase"
+            style={{ color: "var(--neon-cyan)" }}
+          >
+            {">"} {siteConfig.title.split(" - ")[0].split(" ")[0]}
+          </span>
+          <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+            _
+          </span>
         </Link>
 
-        {/* Desktop links */}
-        <ul className="hidden items-center gap-6 md:flex">
+        {/* Desktop */}
+        <ul className="hidden items-center gap-1 md:flex">
           {visibleLinks.map((link) => (
             <li key={link.href}>
               <Link
                 href={link.href}
                 onClick={(e) => handleAnchorClick(e, link.href)}
                 className={cn(
-                  "text-sm font-semibold transition-colors",
+                  "px-3 py-1.5 text-xs font-medium tracking-wide uppercase rounded transition-all duration-200",
                   isActive(link)
-                    ? "bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
-                    : "text-neutral-600 hover:text-blue-600",
+                    ? "text-(--neon-cyan) bg-(--neon-cyan-dim)"
+                    : "text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--bg-elevated)",
                 )}
               >
                 {link.label}
@@ -98,9 +115,10 @@ export default function Navbar() {
           ))}
         </ul>
 
-        {/* Mobile hamburger */}
+        {/* Mobile toggle */}
         <button
-          className="flex items-center md:hidden text-neutral-600"
+          className="flex items-center md:hidden"
+          style={{ color: "var(--text-secondary)" }}
           onClick={() => setIsOpen(!isOpen)}
           aria-label="Toggle menu"
         >
@@ -110,8 +128,14 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {isOpen && (
-        <div className="border-t border-neutral-100 bg-white px-8 py-4 md:hidden">
-          <ul className="flex flex-col gap-4">
+        <div
+          className="border-t px-6 py-4 md:hidden"
+          style={{
+            borderColor: "var(--border-dim)",
+            background: "var(--bg-void)",
+          }}
+        >
+          <ul className="flex flex-col gap-1">
             {visibleLinks.map((link) => (
               <li key={link.href}>
                 <Link
@@ -121,10 +145,10 @@ export default function Navbar() {
                     setIsOpen(false);
                   }}
                   className={cn(
-                    "text-sm font-medium transition-colors",
+                    "block px-3 py-2 text-xs font-medium tracking-wide uppercase rounded transition-all",
                     isActive(link)
-                      ? "bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
-                      : "text-neutral-500 hover:text-neutral-900",
+                      ? "text-(--neon-cyan) bg-(--neon-cyan-dim)"
+                      : "text-(--text-secondary) hover:text-(--text-primary)",
                   )}
                 >
                   {link.label}
