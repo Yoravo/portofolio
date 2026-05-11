@@ -129,7 +129,7 @@ export const timeline: TimelineEvent[] = [
     id: 3,
     date: "Nov 2024",
     title: "Internship Completed",
-    subtitle: "4 Months at Pupuk Kujang",
+    subtitle: "3 Months at Pupuk Kujang",
     description:
       "Completed internship gaining hands-on experience in full-stack development, team collaboration, and real-world data management systems.",
     type: "milestone",
