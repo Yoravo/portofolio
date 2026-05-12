@@ -3,12 +3,12 @@
 import { skillGroups } from "@/lib/config";
 import { motion } from "framer-motion";
 import { Terminal } from "lucide-react";
+import TiltCard from "@/components/ui/TiltCard";
 
 export default function SkillsSection() {
   return (
     <section id="skills" className="section-padding bg-grid">
       <div className="mx-auto max-w-6xl">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -39,11 +39,7 @@ export default function SkillsSection() {
           </p>
         </motion.div>
 
-        {/* 3D skill cards grid */}
-        <div
-          className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4"
-          style={{ perspective: "1000px" }}
-        >
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {skillGroups.map((group, i) => (
             <motion.div
               key={group.category}
@@ -51,39 +47,32 @@ export default function SkillsSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: 0.08 * i }}
-              whileHover={{
-                rotateX: -2,
-                rotateY: 3,
-                scale: 1.02,
-                transition: { duration: 0.3 },
-              }}
-              className="card-3d p-6"
-              style={{ transformStyle: "preserve-3d" }}
+              className="h-full"
+              style={{ perspective: "1000px" }}
             >
-              {/* Category label */}
-              <h3
-                className="mb-4 text-xs font-semibold uppercase tracking-widest"
-                style={{ color: "var(--neon-amber)" }}
-              >
-                {group.category}
-              </h3>
-
-              {/* Skill tags */}
-              <div className="flex flex-wrap gap-2">
-                {group.skills.map((skill) => (
-                  <span
-                    key={skill}
-                    className="rounded-md px-2.5 py-1 text-xs font-medium transition-colors duration-200"
-                    style={{
-                      background: "var(--neon-cyan-dim)",
-                      color: "var(--neon-cyan)",
-                      border: "1px solid rgba(0,240,255,0.15)",
-                    }}
-                  >
-                    {skill}
-                  </span>
-                ))}
-              </div>
+              <TiltCard className="p-6 h-full" intensity={10}>
+                <h3
+                  className="mb-4 text-xs font-semibold uppercase tracking-widest"
+                  style={{ color: "var(--neon-amber)" }}
+                >
+                  {group.category}
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {group.skills.map((skill) => (
+                    <span
+                      key={skill}
+                      className="rounded-md px-2.5 py-1 text-xs font-medium"
+                      style={{
+                        background: "var(--neon-cyan-dim)",
+                        color: "var(--neon-cyan)",
+                        border: "1px solid rgba(0,240,255,0.15)",
+                      }}
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </TiltCard>
             </motion.div>
           ))}
         </div>

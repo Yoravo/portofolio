@@ -3,6 +3,7 @@
 import { siteConfig } from "@/lib/config";
 import { motion } from "framer-motion";
 import { MapPin, Download, Terminal } from "lucide-react";
+import TiltCard from "@/components/ui/TiltCard";
 
 const stats = [
   { value: "2+", label: "Years Learning" },
@@ -15,7 +16,6 @@ export default function AboutSection() {
   return (
     <section id="about" className="section-padding bg-grid">
       <div className="mx-auto max-w-6xl">
-        {/* Section header */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -41,7 +41,7 @@ export default function AboutSection() {
         </motion.div>
 
         <div className="flex flex-col gap-12 md:flex-row md:items-start">
-          {/* Left — terminal bio card */}
+          {/* Terminal bio */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -50,11 +50,8 @@ export default function AboutSection() {
             className="flex-1 space-y-4"
             style={{ perspective: "800px" }}
           >
-            <div
-              className="card-3d overflow-hidden"
-              style={{ transformStyle: "preserve-3d" }}
-            >
-              {/* Terminal header bar */}
+            <TiltCard className="overflow-hidden" intensity={4}>
+              {/* Terminal header */}
               <div
                 className="flex items-center gap-2 px-4 py-2.5"
                 style={{
@@ -75,7 +72,7 @@ export default function AboutSection() {
                 </span>
               </div>
 
-              {/* Bio content */}
+              {/* Bio */}
               <div className="p-5 space-y-3">
                 <p
                   className="text-sm leading-relaxed"
@@ -122,7 +119,7 @@ export default function AboutSection() {
                   </span>
                 </p>
               </div>
-            </div>
+            </TiltCard>
 
             {/* Location + CV */}
             <div className="flex flex-wrap items-center gap-4 pt-2">
@@ -135,8 +132,8 @@ export default function AboutSection() {
               </div>
               <a
                 href={siteConfig.cv}
-                className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-medium transition-all duration-200
-  hover:brightness-110 glow-cyan"
+                className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-medium transition-all
+  duration-200 hover:brightness-110 glow-cyan"
                 style={{
                   background: "var(--neon-cyan)",
                   color: "var(--bg-primary)",
@@ -149,7 +146,7 @@ export default function AboutSection() {
             </div>
           </motion.div>
 
-          {/* Right — 3D stats grid */}
+          {/* Stats */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -165,26 +162,21 @@ export default function AboutSection() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.3, delay: 0.1 * i }}
-                whileHover={{
-                  rotateX: -3,
-                  rotateY: 3,
-                  scale: 1.03,
-                  transition: { duration: 0.3 },
-                }}
-                className="card-3d p-4 text-center"
               >
-                <p
-                  className="text-2xl font-bold text-glow-cyan"
-                  style={{ color: "var(--neon-cyan)" }}
-                >
-                  {stat.value}
-                </p>
-                <p
-                  className="mt-1 text-[10px] uppercase tracking-wider"
-                  style={{ color: "var(--text-muted)" }}
-                >
-                  {stat.label}
-                </p>
+                <TiltCard className="p-4 text-center" intensity={12}>
+                  <p
+                    className="text-2xl font-bold text-glow-cyan"
+                    style={{ color: "var(--neon-cyan)" }}
+                  >
+                    {stat.value}
+                  </p>
+                  <p
+                    className="mt-1 text-[10px] uppercase tracking-wider"
+                    style={{ color: "var(--text-muted)" }}
+                  >
+                    {stat.label}
+                  </p>
+                </TiltCard>
               </motion.div>
             ))}
           </motion.div>
