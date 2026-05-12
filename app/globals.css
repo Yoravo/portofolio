@@ -118,7 +118,6 @@ h4 {
 }
 
 .card-3d:hover {
-  transform: translateY(-4px) rotateX(2deg) rotateY(-1deg);
   box-shadow: var(--depth-3);
   border-color: rgba(0, 240, 255, 0.25);
 }
