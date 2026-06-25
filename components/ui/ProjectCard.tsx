@@ -5,6 +5,7 @@ import { ExternalLink } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 export default function ProjectCard({ project }: { project: Project }) {
   return (
@@ -20,7 +21,15 @@ export default function ProjectCard({ project }: { project: Project }) {
           className="relative h-52 w-full overflow-hidden"
           style={{ background: "var(--bg-secondary)" }}
         >
-          {project.demo ? (
+          {project.image ? (
+            <Image
+              src={project.image}
+              alt={`Preview of ${project.title}`}
+              fill
+              className="object-cover object-top"
+              loading="lazy"
+            />
+          ) : project.demo ? (
             <div className="pointer-events-none h-full w-full">
               <iframe
                 src={project.demo}

@@ -22,6 +22,7 @@ export type Project = {
   tags: string[];
   github: string;
   demo?: string;
+  image?: string;
   featured: boolean;
 };
 
@@ -54,6 +55,26 @@ export const projects: Project[] = [
     tags: ["React", "Tailwind CSS", "TypeScript", "Zustand"],
     github: "https://github.com/Yoravo/Score-Keeper",
     demo: "https://score-keeper-alpha.vercel.app",
+    featured: true,
+  },
+  {
+    slug: "notaku",
+    title: "NotaKu - Invoice Generator untuk UMKM",
+    description:
+      "A SaaS invoice generator built for Indonesian UMKM. Create and send professional invoices in 30 seconds, with PDF export, WhatsApp share link, customer management, and Midtrans subscription for Pro tier (unlimited invoices, no watermark, custom branding).",
+    tags: [
+      "Next.js",
+      "TypeScript",
+      "Prisma",
+      "PostgreSQL",
+      "Better Auth",
+      "Midtrans",
+      "Resend",
+      "Tailwind CSS",
+    ],
+    github: "https://github.com/yoravo/notaku",
+    demo: "https://notaku.store/",
+    image: "/images/projects/notaku-thumb.jpg",
     featured: true,
   },
   // Add more projects here
@@ -155,7 +176,7 @@ export const timeline: TimelineEvent[] = [
   {
     id: 6,
     date: "Apr 2026",
-    title: "Meal App — cmlabs Test",
+    title: "Meal App - cmlabs Test",
     subtitle: "Technical Assessment",
     description:
       "Multi-page meal browser using React & TypeScript. Consumed TheMealDB API with client-side search, dynamic routing, and embedded YouTube tutorials.",

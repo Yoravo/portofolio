@@ -1,36 +1,36 @@
-import { projects } from "@/lib/config"
-import { notFound } from "next/navigation"
-import { Metadata } from "next"
-import Link from "next/link"
-import { ArrowLeft, ExternalLink } from "lucide-react"
-import { FaGithub } from "react-icons/fa"
+import { projects } from "@/lib/config";
+import { notFound } from "next/navigation";
+import { Metadata } from "next";
+import Link from "next/link";
+import { ArrowLeft, ExternalLink } from "lucide-react";
+import { FaGithub } from "react-icons/fa";
+import Image from "next/image";
 
 type Props = {
-  params: Promise<{ slug: string }>
-}
+  params: Promise<{ slug: string }>;
+};
 
 export async function generateStaticParams() {
-  return projects.map((p) => ({ slug: p.slug }))
+  return projects.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params
-  const project = projects.find((p) => p.slug === slug)
-  if (!project) return {}
+  const { slug } = await params;
+  const project = projects.find((p) => p.slug === slug);
+  if (!project) return {};
   return {
     title: `${project.title} — Radja Ravine Salfriandry`,
     description: project.description,
-  }
+  };
 }
 
 export default async function ProjectDetailPage({ params }: Props) {
-  const { slug } = await params
-  const project = projects.find((p) => p.slug === slug)
-  if (!project) notFound()
+  const { slug } = await params;
+  const project = projects.find((p) => p.slug === slug);
+  if (!project) notFound();
 
   return (
     <main className="px-8 pt-4 pb-4">
-
       {/* Back button */}
       <Link
         href="/projects"
@@ -41,11 +41,18 @@ export default async function ProjectDetailPage({ params }: Props) {
       </Link>
 
       <div className="flex flex-col gap-10 lg:flex-row lg:gap-16">
-
-        {/* Left — iframe preview */}
+        {/* Left — image or iframe preview */}
         <div className="w-full lg:w-1/2">
           <div className="relative aspect-video w-full overflow-hidden rounded-xl border border-neutral-200 bg-neutral-100 shadow-sm">
-            {project.demo ? (
+            {project.image ? (
+              <Image
+                src={project.image}
+                alt={`Preview of ${project.title}`}
+                fill
+                className="object-cover object-top"
+                loading="lazy"
+              />
+            ) : project.demo ? (
               <iframe
                 src={project.demo}
                 title={`Live preview of ${project.title}`}
@@ -55,15 +62,28 @@ export default async function ProjectDetailPage({ params }: Props) {
               />
             ) : (
               <div className="flex h-full items-center justify-center">
-                <span className="text-sm text-neutral-400">No preview available</span>
+                <span className="text-sm text-neutral-400">
+                  No preview available
+                </span>
               </div>
             )}
           </div>
+
+          {/* Kalau ada image, tambahin link ke demo live di-bawah preview biar user tetap bisa buka */}
+          {project.image && project.demo && (
+            <a
+              href={project.demo}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-flex items-center gap-1.5 text-sm text-neutral-500 transition-colors hover:text-neutral-900"
+            >
+              <ExternalLink size={14} /> Open live site
+            </a>
+          )}
         </div>
 
         {/* Right — content */}
         <div className="flex flex-1 flex-col gap-6">
-
           {/* Title */}
           <h1 className="text-3xl font-bold text-blue-700 sm:text-4xl">
             {project.title}
@@ -114,9 +134,8 @@ export default async function ProjectDetailPage({ params }: Props) {
               </Link>
             )}
           </div>
-
         </div>
       </div>
     </main>
-  )
+  );
 }
