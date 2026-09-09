@@ -1,27 +1,37 @@
-import { projects } from "@/lib/config";
+import { projects, uiCopy } from "@/lib/config";
+import { Terminal } from "lucide-react";
 import { Metadata } from "next";
 import ProjectCard from "@/components/ui/ProjectCard";
 
 export const metadata: Metadata = {
-  title: "Projects - Radja Ravine Salfriandry",
-  description: "A collection of projects built by Radja Ravine Salfriandry.",
+  title: uiCopy.projects.metadataTitle,
+  description: uiCopy.projects.metadataDescription,
 };
 
 export default function ProjectsPage() {
   return (
-    <main className="section-padding bg-grid">
+    <div className="section-padding bg-grid">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-12">
+        <header className="mb-12">
+          <div className="mb-2 flex items-center gap-2">
+            <Terminal size={16} style={{ color: "var(--neon-cyan)" }} aria-hidden="true" />
+            <span
+              className="text-xs font-medium uppercase tracking-widest"
+              style={{ color: "var(--text-muted)" }}
+            >
+              {uiCopy.projects.path}
+            </span>
+          </div>
           <h1
-            className="mb-2 text-3xl font-bold text-glow-cyan sm:text-4xl"
+            className="text-balance text-3xl font-bold text-glow-cyan sm:text-4xl"
             style={{ color: "var(--neon-cyan)" }}
           >
-            Projects
+            {uiCopy.projects.title}
           </h1>
-          <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-            Things I&apos;ve built so far.
+          <p className="mt-2 text-base" style={{ color: "var(--text-secondary)" }}>
+            {uiCopy.projects.description}
           </p>
-        </div>
+        </header>
 
         <div
           className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
@@ -32,6 +42,6 @@ export default function ProjectsPage() {
           ))}
         </div>
       </div>
-    </main>
+    </div>
   );
 }

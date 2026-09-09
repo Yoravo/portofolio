@@ -1,39 +1,40 @@
 "use client";
 
-import { Project } from "@/lib/config";
+import { Project, uiCopy } from "@/lib/config";
 import { ExternalLink } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 
 export default function ProjectCard({ project }: { project: Project }) {
+  const reducedMotion = useReducedMotion();
+
   return (
-    <motion.div
-      whileHover={{ rotateX: -2, rotateY: 2, scale: 1.02 }}
-      transition={{ duration: 0.3 }}
-      className="card-3d group flex flex-col overflow-hidden"
-      style={{ transformStyle: "preserve-3d" }}
+    <motion.article
+      whileHover={reducedMotion ? undefined : { y: -4 }}
+      transition={{ duration: 0.2 }}
+      className="card-3d group flex min-w-0 flex-col overflow-hidden"
     >
       {/* Preview */}
-      <Link href={`/projects/${project.slug}`}>
+      <Link href={`/projects/${project.slug}`} aria-label={`${uiCopy.projects.preview} ${project.title}`}>
         <div
-          className="relative h-52 w-full overflow-hidden"
+          className="relative aspect-video w-full overflow-hidden"
           style={{ background: "var(--bg-secondary)" }}
         >
           {project.image ? (
             <Image
               src={project.image}
-              alt={`Preview of ${project.title}`}
+              alt={`${uiCopy.projects.preview} ${project.title}`}
               fill
+              sizes="(min-width: 1200px) 368px, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
               className="object-cover object-top"
-              loading="lazy"
             />
           ) : project.demo ? (
-            <div className="pointer-events-none h-full w-full">
+            <div className="pointer-events-none h-full w-full" aria-hidden="true">
               <iframe
                 src={project.demo}
-                title={`Preview of ${project.title}`}
+                title={`${uiCopy.projects.preview} ${project.title}`}
                 className="h-[200%] w-[200%] origin-top-left scale-50 border-0"
                 loading="lazy"
                 sandbox="allow-scripts allow-same-origin"
@@ -42,94 +43,40 @@ export default function ProjectCard({ project }: { project: Project }) {
             </div>
           ) : (
             <div className="flex h-full items-center justify-center">
-              <span className="text-sm" style={{ color: "var(--text-muted)" }}>
-                No preview
-              </span>
+              <span className="text-sm text-(--text-muted)">{uiCopy.projects.noPreview}</span>
             </div>
           )}
-          {/* Gradient overlay */}
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(to top, var(--bg-card), transparent 50%)",
-            }}
-          />
         </div>
       </Link>
 
       {/* Content */}
-      <div className="flex flex-1 flex-col gap-3 p-5">
-        <Link href={`/projects/${project.slug}`}>
-          <h3
-            className="text-base font-semibold transition-colors duration-200"
-            style={{ color: "var(--text-primary)" }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.color = "var(--neon-cyan)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.color = "var(--text-primary)")
-            }
-          >
+      <div className="flex flex-1 flex-col gap-4 border-t border-(--border-dim) p-5 sm:p-6">
+        <h2 className="text-xl font-semibold leading-snug">
+          <Link href={`/projects/${project.slug}`} className="rounded text-(--text-primary) transition-colors hover:text-(--neon-cyan)">
             {project.title}
-          </h3>
-        </Link>
-        <p
-          className="flex-1 text-sm leading-relaxed"
-          style={{ color: "var(--text-secondary)" }}
-        >
+          </Link>
+        </h2>
+        <p className="flex-1 text-base leading-relaxed text-(--text-secondary)">
           {project.description}
         </p>
-
-        {/* Tags */}
-        <div className="flex flex-wrap gap-2">
+        <ul className="flex flex-wrap gap-2" aria-label={uiCopy.projects.stack}>
           {project.tags.map((tag) => (
-            <span
-              key={tag}
-              className="rounded-md px-2 py-0.5 text-xs font-medium"
-              style={{
-                background: "var(--neon-cyan-dim)",
-                color: "var(--neon-cyan)",
-                border: "1px solid rgba(0,240,255,0.12)",
-              }}
-            >
+            <li key={tag} className="rounded-md border border-(--neon-cyan-border) bg-(--neon-cyan-dim) px-2.5 py-1 text-xs font-medium text-(--neon-cyan)">
               {tag}
-            </span>
+            </li>
           ))}
-        </div>
-
-        {/* Links */}
-        <div className="flex items-center gap-3 pt-1">
-          <Link
-            href={project.github}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-xs font-medium transition-colors duration-200"
-            style={{ color: "var(--text-muted)" }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.color = "var(--text-primary)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.color = "var(--text-muted)")
-            }
-          >
-            <FaGithub size={14} /> GitHub
+        </ul>
+        <div className="flex flex-wrap items-center gap-3 border-t border-(--border-dim) pt-4">
+          <Link href={project.github} target="_blank" rel="noopener noreferrer" className="secondary-button inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-medium">
+            <FaGithub size={16} aria-hidden="true" /> {uiCopy.projects.github}
           </Link>
           {project.demo && (
-            <Link
-              href={project.demo}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs font-medium transition-colors duration-200"
-              style={{ color: "var(--neon-cyan)" }}
-              onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.8")}
-              onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
-            >
-              <ExternalLink size={14} /> Live Demo
+            <Link href={project.demo} target="_blank" rel="noopener noreferrer" className="secondary-button inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-medium">
+              <ExternalLink size={16} aria-hidden="true" /> {uiCopy.projects.demo}
             </Link>
           )}
         </div>
       </div>
-    </motion.div>
+    </motion.article>
   );
 }

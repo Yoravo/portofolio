@@ -1,6 +1,7 @@
 "use client";
 
 import { useTilt } from "@/lib/use-tilt";
+import { cn } from "@/lib/utils";
 
 export default function TiltCard({
   children,
@@ -18,7 +19,7 @@ export default function TiltCard({
       ref={ref}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className={`card-3d ${className}`}
+      className={cn("card-3d", className)}
       style={{
         ...style,
         transformStyle: "preserve-3d",

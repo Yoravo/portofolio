@@ -1,108 +1,82 @@
-"use client";
-
 import Link from "next/link";
-import { siteConfig } from "@/lib/config";
+import { siteConfig, navLinks, uiCopy } from "@/lib/config";
 import { FaGithub, FaLinkedin, FaInstagram } from "react-icons/fa";
 import { Mail } from "lucide-react";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
+  const socialItems = [
+    {
+      href: siteConfig.github,
+      icon: <FaGithub size={18} aria-hidden="true" />,
+      label: "GitHub",
+    },
+    {
+      href: siteConfig.linkedin,
+      icon: <FaLinkedin size={18} aria-hidden="true" />,
+      label: "LinkedIn",
+    },
+    {
+      href: siteConfig.instagram,
+      icon: <FaInstagram size={18} aria-hidden="true" />,
+      label: "Instagram",
+    },
+    {
+      href: `mailto:${siteConfig.email}`,
+      icon: <Mail size={18} aria-hidden="true" />,
+      label: "Email",
+    },
+  ];
+
   return (
     <footer
-      className="border-t px-6 py-8 mt-16"
+      className="mt-16 border-t px-6 py-10 transition-colors duration-200"
       style={{
         borderColor: "var(--border-dim)",
         background: "var(--bg-void)",
-        boxShadow: "0 -4px 20px rgba(0,0,0,0.3)",
       }}
     >
-      <div className="mx-auto max-w-6xl flex flex-col items-center justify-between gap-6 sm:flex-row">
+      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 sm:flex-row">
         {/* Left */}
-        <div>
+        <div className="text-center sm:text-left">
           <p
-            className="text-xs font-bold tracking-widest uppercase"
+            className="text-xs font-bold tracking-widest uppercase text-glow-cyan"
             style={{ color: "var(--neon-cyan)" }}
           >
             {">"} {siteConfig.title.split(" - ")[0]}
           </p>
           <p className="mt-1 text-xs" style={{ color: "var(--text-muted)" }}>
-            © {currentYear} — All systems operational.
+            © {currentYear} — {uiCopy.footerStatus}
           </p>
         </div>
 
         {/* Center nav */}
-        <div className="flex items-center gap-6">
-          {[
-            { href: "/", label: "Home" },
-            { href: "/#about", label: "About" },
-            { href: "/#journey", label: "Journey" },
-            { href: "/#skills", label: "Skills" },
-            { href: "/#contact", label: "Contact" },
-          ].map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-xs transition-colors duration-200"
-              style={{ color: "var(--text-muted)" }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.color = "var(--neon-cyan)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.color = "var(--text-muted)")
-              }
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
+        <nav aria-label={uiCopy.footerNavigation}>
+          <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+            {navLinks.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  className="inline-flex min-h-[44px] items-center text-xs font-medium uppercase tracking-wider transition-colors duration-150 hover:text-(--neon-cyan)"
+                  style={{ color: "var(--text-muted)" }}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
 
         {/* Right socials */}
-        <div className="flex items-center gap-3">
-          {[
-            {
-              href: siteConfig.github,
-              icon: <FaGithub size={16} />,
-              label: "GitHub",
-            },
-            {
-              href: siteConfig.linkedin,
-              icon: <FaLinkedin size={16} />,
-              label: "LinkedIn",
-            },
-            {
-              href: siteConfig.instagram,
-              icon: <FaInstagram size={16} />,
-              label: "Instagram",
-            },
-            {
-              href: `mailto:${siteConfig.email}`,
-              icon: <Mail size={16} />,
-              label: "Email",
-            },
-          ].map((social) => (
+        <div className="flex items-center gap-2.5">
+          {socialItems.map((social) => (
             <Link
               key={social.label}
               href={social.href}
               target={social.href.startsWith("mailto") ? undefined : "_blank"}
               rel="noopener noreferrer"
-              className="flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-200"
-              style={{
-                color: "var(--text-muted)",
-                background: "var(--bg-card)",
-                border: "1px solid var(--border-dim)",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = "var(--neon-cyan)";
-                e.currentTarget.style.borderColor = "rgba(0,240,255,0.3)";
-                e.currentTarget.style.boxShadow =
-                  "0 0 12px rgba(0,240,255,0.1)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = "var(--text-muted)";
-                e.currentTarget.style.borderColor = "var(--border-dim)";
-                e.currentTarget.style.boxShadow = "none";
-              }}
+              className="interactive-surface inline-flex h-11 w-11 items-center justify-center rounded-xl"
               aria-label={social.label}
             >
               {social.icon}

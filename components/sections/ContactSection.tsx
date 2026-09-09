@@ -1,269 +1,157 @@
 "use client";
 
-import { siteConfig } from "@/lib/config";
+import { siteConfig, socialLinks, uiCopy } from "@/lib/config";
 import { motion } from "framer-motion";
-import { Mail, MapPin, Terminal, Send } from "lucide-react";
+import { Mail, MapPin, Terminal, Send, LoaderCircle } from "lucide-react";
 import { FaGithub, FaLinkedin, FaInstagram } from "react-icons/fa";
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
+
+const copy = uiCopy.contact;
+const socialIcons = [FaGithub, FaLinkedin, FaInstagram, Mail];
+type Field = "name" | "email" | "message";
 
 export default function ContactSection() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    message: "",
-  });
-  const [status, setStatus] = useState<
-    "idle" | "loading" | "success" | "error"
-  >("idle");
-  const [errorMsg, setErrorMsg] = useState("");
+  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [errors, setErrors] = useState<Partial<Record<Field, string>>>({});
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const submitting = useRef(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      setStatus("error");
-      setErrorMsg("Please enter a valid email address.");
+    if (submitting.current) return;
+    const form = e.currentTarget;
+    const nextErrors: Partial<Record<Field, string>> = {};
+    if (!formData.name.trim()) nextErrors.name = copy.errors.name;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) nextErrors.email = copy.errors.email;
+    if (formData.message.trim().length < 10) nextErrors.message = copy.errors.message;
+    setErrors(nextErrors);
+    const firstInvalid = (Object.keys(nextErrors) as Field[])[0];
+    if (firstInvalid) {
+      setStatus("idle");
+      (form.elements.namedItem(firstInvalid) as HTMLElement | null)?.focus();
       return;
     }
-    if (formData.message.trim().length < 10) {
-      setStatus("error");
-      setErrorMsg("Message is too short.");
-      return;
-    }
 
+    // Capture before disabling fields; disabled controls are omitted by FormData.
+    const body = new FormData(form);
+    body.set("name", formData.name.trim());
+    body.set("email", formData.email.trim());
+    body.set("message", formData.message.trim());
+    submitting.current = true;
     setStatus("loading");
-    setErrorMsg("");
-
     try {
       const res = await fetch(siteConfig.formspree, {
         method: "POST",
-        body: new FormData(e.currentTarget),
+        body,
         headers: { Accept: "application/json" },
+        signal: AbortSignal.timeout(15000),
       });
-
-      if (res.ok) {
-        setStatus("success");
-        setFormData({ name: "", email: "", message: "" });
-      } else {
-        setStatus("error");
-        setErrorMsg("Something went wrong. Please try again.");
-      }
+      if (!res.ok) throw new Error("Contact request failed");
+      setFormData({ name: "", email: "", message: "" });
+      setStatus("success");
     } catch {
       setStatus("error");
-      setErrorMsg("Something went wrong. Please try again.");
+    } finally {
+      submitting.current = false;
     }
+  };
+
+  const updateField = (field: Field, value: string) => {
+    setFormData((current) => ({ ...current, [field]: value }));
+    setErrors((current) => ({ ...current, [field]: undefined }));
+    setStatus("idle");
   };
 
   return (
     <section id="contact" className="section-padding bg-grid">
       <div className="mx-auto max-w-6xl">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4 }}
-          className="mb-12"
-        >
-          <div className="flex items-center gap-2 mb-2">
-            <Terminal size={16} style={{ color: "var(--neon-cyan)" }} />
-            <span
-              className="text-xs font-medium tracking-widest uppercase"
-              style={{ color: "var(--text-muted)" }}
-            >
-              ~/contact
-            </span>
+        <motion.header initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.3 }} className="mb-12">
+          <div className="mb-2 flex items-center gap-2">
+            <Terminal size={16} className="text-(--neon-cyan)" aria-hidden="true" />
+            <span className="text-xs font-medium tracking-widest uppercase text-(--text-muted)">{copy.path}</span>
           </div>
-          <h2
-            className="text-3xl font-bold text-glow-cyan"
-            style={{ color: "var(--neon-cyan)" }}
-          >
-            Contact
-          </h2>
-          <p
-            className="mt-2 text-sm"
-            style={{ color: "var(--text-secondary)" }}
-          >
-            Interested in working together? Let&apos;s connect.
-          </p>
-        </motion.div>
+          <h2 className="text-3xl font-bold text-glow-cyan text-(--neon-cyan)">{copy.title}</h2>
+          <p className="mt-2 text-base text-(--text-secondary)">{copy.description}</p>
+        </motion.header>
 
-        <div className="flex flex-col gap-12 md:flex-row">
-          {/* Left — info */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4, delay: 0.1 }}
-            className="flex flex-col gap-6 md:w-72"
-          >
-            <p
-              className="text-sm leading-relaxed"
-              style={{ color: "var(--text-secondary)" }}
-            >
-              I&apos;m currently open to freelance projects, internships, and
-              full-time opportunities. Feel free to reach out.
-            </p>
+        <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:gap-12">
+          {/* Contact details */}
+          <div className="flex min-w-0 flex-col gap-6">
+            <p className="max-w-prose text-base leading-relaxed text-(--text-secondary)">{copy.introduction}</p>
+            <div className="space-y-3">
+              <a href={`mailto:${siteConfig.email}`} className="interactive-surface flex min-h-14 items-center gap-3 rounded-xl p-3 text-sm">
+                <Mail size={18} className="shrink-0 text-(--neon-cyan)" aria-hidden="true" />
+                <span className="min-w-0 [overflow-wrap:anywhere]">{siteConfig.email}</span>
+              </a>
+              <p className="flex min-h-14 items-center gap-3 rounded-xl border border-(--border-dim) bg-(--bg-card) p-3 text-sm text-(--text-secondary)">
+                <MapPin size={18} className="shrink-0 text-(--neon-amber)" aria-hidden="true" />
+                {siteConfig.location}
+              </p>
+            </div>
+            <div className="flex gap-3">
+              {socialLinks.slice(0, 3).map((social, i) => {
+                const Icon = socialIcons[i];
+                return (
+                  <Link key={social.label} href={social.href} target="_blank" rel="noopener noreferrer" className="interactive-surface inline-flex h-11 w-11 items-center justify-center rounded-xl" aria-label={social.label}>
+                    <Icon size={18} aria-hidden="true" />
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
 
-            <div className="flex flex-col gap-3">
-              <div
-                className="flex items-center gap-3 rounded-lg p-3 text-sm"
-                style={{
-                  background: "var(--bg-card)",
-                  border: "1px solid var(--border-dim)",
-                }}
-              >
-                <div
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md"
-                  style={{ background: "var(--neon-cyan-dim)" }}
-                >
-                  <Mail size={14} style={{ color: "var(--neon-cyan)" }} />
-                </div>
-                <span style={{ color: "var(--text-secondary)" }}>
-                  {siteConfig.email}
-                </span>
+          {/* Form */}
+          <form onSubmit={handleSubmit} noValidate aria-busy={status === "loading"} className="card-3d min-w-0 p-5 sm:p-7">
+            <p className="mb-5 text-xs text-(--text-muted)">{copy.required}</p>
+            <fieldset disabled={status === "loading"} className="min-w-0 space-y-5">
+              <div className="grid gap-5 sm:grid-cols-2">
+                {(["name", "email"] as const).map((field) => (
+                  <div key={field} className="min-w-0">
+                    <label htmlFor={`contact-${field}`} className="mb-2 block text-sm font-medium text-(--text-primary)">{copy[field]}</label>
+                    <input
+                      id={`contact-${field}`}
+                      type={field === "email" ? "email" : "text"}
+                      name={field}
+                      autoComplete={field}
+                      required
+                      value={formData[field]}
+                      onChange={(e) => updateField(field, e.target.value)}
+                      aria-invalid={Boolean(errors[field])}
+                      aria-describedby={errors[field] ? `contact-${field}-error` : undefined}
+                      className="input-3d min-h-12 w-full min-w-0 px-4 py-3"
+                    />
+                    {errors[field] && <p id={`contact-${field}-error`} className="mt-2 text-sm text-(--neon-pink)" role="alert">{errors[field]}</p>}
+                  </div>
+                ))}
               </div>
-              <div
-                className="flex items-center gap-3 rounded-lg p-3 text-sm"
-                style={{
-                  background: "var(--bg-card)",
-                  border: "1px solid var(--border-dim)",
-                }}
-              >
-                <div
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md"
-                  style={{ background: "var(--neon-amber-dim)" }}
-                >
-                  <MapPin size={14} style={{ color: "var(--neon-amber)" }} />
-                </div>
-                <span style={{ color: "var(--text-secondary)" }}>
-                  {siteConfig.location}
-                </span>
+              <div>
+                <label htmlFor="contact-message" className="mb-2 block text-sm font-medium text-(--text-primary)">{copy.message}</label>
+                <textarea
+                  id="contact-message"
+                  name="message"
+                  required
+                  minLength={10}
+                  rows={6}
+                  value={formData.message}
+                  onChange={(e) => updateField("message", e.target.value)}
+                  aria-invalid={Boolean(errors.message)}
+                  aria-describedby={errors.message ? "contact-message-hint contact-message-error" : "contact-message-hint"}
+                  className="input-3d w-full resize-y px-4 py-3"
+                />
+                <p id="contact-message-hint" className="mt-2 text-xs text-(--text-muted)">{copy.messageHint}</p>
+                {errors.message && <p id="contact-message-error" className="mt-2 text-sm text-(--neon-pink)" role="alert">{errors.message}</p>}
               </div>
-            </div>
-
-            {/* Social icons */}
-            <div className="flex items-center gap-3">
-              {[
-                {
-                  href: siteConfig.github,
-                  icon: <FaGithub size={16} />,
-                  label: "GitHub",
-                },
-                {
-                  href: siteConfig.linkedin,
-                  icon: <FaLinkedin size={16} />,
-                  label: "LinkedIn",
-                },
-                {
-                  href: siteConfig.instagram,
-                  icon: <FaInstagram size={16} />,
-                  label: "Instagram",
-                },
-              ].map((s) => (
-                <Link
-                  key={s.label}
-                  href={s.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-200"
-                  style={{
-                    color: "var(--text-muted)",
-                    background: "var(--bg-card)",
-                    border: "1px solid var(--border-dim)",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = "var(--neon-cyan)";
-                    e.currentTarget.style.borderColor = "rgba(0,240,255,0.3)";
-                    e.currentTarget.style.boxShadow =
-                      "0 0 12px rgba(0,240,255,0.1)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = "var(--text-muted)";
-                    e.currentTarget.style.borderColor = "var(--border-dim)";
-                    e.currentTarget.style.boxShadow = "none";
-                  }}
-                  aria-label={s.label}
-                >
-                  {s.icon}
-                </Link>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Right — form */}
-          <motion.form
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4, delay: 0.2 }}
-            onSubmit={handleSubmit}
-            className="flex flex-1 flex-col gap-4"
-            style={{ perspective: "800px" }}
-          >
-            <div className="flex flex-col gap-4 sm:flex-row">
-              <input
-                type="text"
-                name="name"
-                placeholder="Your name"
-                required
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                className="input-3d flex-1 px-4 py-2.5 text-sm"
-              />
-              <input
-                type="email"
-                name="email"
-                placeholder="Your email"
-                required
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
-                className="input-3d flex-1 px-4 py-2.5 text-sm"
-              />
-            </div>
-            <textarea
-              name="message"
-              placeholder="Your message"
-              required
-              rows={6}
-              value={formData.message}
-              onChange={(e) =>
-                setFormData({ ...formData, message: e.target.value })
-              }
-              className="input-3d resize-none px-4 py-2.5 text-sm"
-            />
-
-            <div className="flex items-center gap-4">
-              <button
-                type="submit"
-                disabled={status === "loading"}
-                className="inline-flex items-center gap-2 rounded-lg px-6 py-2.5 text-sm font-medium transition-all duration-200
-  hover:brightness-110 disabled:opacity-50 glow-cyan"
-                style={{
-                  background: "var(--neon-cyan)",
-                  color: "var(--bg-primary)",
-                }}
-              >
-                <Send size={14} />
-                {status === "loading" ? "Sending..." : "Send Message"}
+              <button type="submit" disabled={status === "loading"} className="neon-button inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold sm:w-auto">
+                {status === "loading" ? <LoaderCircle size={16} className="animate-spin" aria-hidden="true" /> : <Send size={16} aria-hidden="true" />}
+                {status === "loading" ? copy.sending : copy.send}
               </button>
-              {status === "success" && (
-                <p className="text-sm" style={{ color: "var(--neon-green)" }}>
-                  Message sent! I&apos;ll get back to you soon.
-                </p>
-              )}
-              {status === "error" && (
-                <p className="text-sm" style={{ color: "var(--neon-pink)" }}>
-                  {errorMsg}
-                </p>
-              )}
-            </div>
-          </motion.form>
+            </fieldset>
+            <p role="status" aria-atomic="true" className="mt-4 text-sm text-(--neon-green)">
+              {status === "loading" ? copy.sending : status === "success" ? copy.success : ""}
+            </p>
+            <p role="alert" className="text-sm text-(--neon-pink)">{status === "error" ? copy.errors.request : ""}</p>
+          </form>
         </div>
       </div>
     </section>

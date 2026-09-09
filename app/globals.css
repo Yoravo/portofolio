@@ -5,6 +5,7 @@
      ══════════════════════════════════════ */
 
 :root {
+  color-scheme: dark;
   --bg-void: #04040a;
   --bg-primary: #08080f;
   --bg-secondary: #0c0c18;
@@ -16,15 +17,25 @@
 
   --text-primary: #f0f0f5;
   --text-secondary: #a0a0b8;
-  --text-muted: #6a6a80;
+  --text-muted: #85859e;
 
   --neon-cyan: #00f0ff;
   --neon-cyan-dim: rgba(0, 240, 255, 0.12);
-  --neon-amber: #ff6b00;
-  --neon-amber-dim: rgba(255, 107, 0, 0.12);
-  --neon-purple: #a855f7;
-  --neon-green: #00ff88;
-  --neon-pink: #ff2d95;
+  --neon-cyan-border: rgba(0, 240, 255, 0.25);
+  --neon-amber: #ff7b1a;
+  --neon-amber-dim: rgba(255, 123, 26, 0.12);
+  --neon-purple: #ba77ff;
+  --neon-green: #21e893;
+  --neon-pink: #ff4da6;
+  --accent-foreground: #041014;
+
+  --grid-line: rgba(0, 240, 255, 0.035);
+  --grid-line-strong: rgba(0, 240, 255, 0.05);
+  --scanline: rgba(0, 0, 0, 0.025);
+  --nav-surface: rgba(4, 4, 10, 0.86);
+  --ambient-cyan: rgba(0, 240, 255, 0.07);
+  --ambient-purple: rgba(168, 85, 247, 0.055);
+  --overlay-avatar: rgba(4, 4, 10, 0.5);
 
   --perspective: 1200px;
   --depth-1: 0 2px 4px rgba(0, 0, 0, 0.3), 0 8px 16px rgba(0, 0, 0, 0.2);
@@ -36,6 +47,48 @@
     0 0 20px rgba(0, 240, 255, 0.08);
 }
 
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg-void: #f4f7fc;
+  --bg-primary: #edf2f9;
+  --bg-secondary: #e7edf6;
+  --bg-card: #ffffff;
+  --bg-elevated: #eef3fa;
+
+  --border-dim: #d9e1ed;
+  --border-subtle: #bdc9da;
+
+  --text-primary: #101521;
+  --text-secondary: #3f4a5f;
+  --text-muted: #5e6a80;
+
+  --neon-cyan: #007f91;
+  --neon-cyan-dim: rgba(0, 127, 145, 0.1);
+  --neon-cyan-border: rgba(0, 127, 145, 0.3);
+  --neon-amber: #a94100;
+  --neon-amber-dim: rgba(169, 65, 0, 0.1);
+  --neon-purple: #7d31c7;
+  --neon-green: #007c43;
+  --neon-pink: #b80e63;
+  --accent-foreground: #ffffff;
+
+  --grid-line: rgba(0, 127, 145, 0.065);
+  --grid-line-strong: rgba(0, 127, 145, 0.09);
+  --scanline: rgba(0, 52, 70, 0.022);
+  --nav-surface: rgba(244, 247, 252, 0.9);
+  --ambient-cyan: rgba(0, 127, 145, 0.12);
+  --ambient-purple: rgba(125, 49, 199, 0.09);
+  --overlay-avatar: rgba(10, 23, 38, 0.34);
+
+  --depth-1: 0 2px 5px rgba(34, 55, 82, 0.08), 0 8px 20px rgba(34, 55, 82, 0.08);
+  --depth-2:
+    0 4px 10px rgba(34, 55, 82, 0.1), 0 18px 36px rgba(34, 55, 82, 0.11),
+    0 0 14px rgba(0, 127, 145, 0.06);
+  --depth-3:
+    0 8px 18px rgba(34, 55, 82, 0.12), 0 30px 64px rgba(34, 55, 82, 0.14),
+    0 0 24px rgba(0, 127, 145, 0.1);
+}
+
 /* --- Base --- */
 html {
   scroll-behavior: smooth;
@@ -45,8 +98,8 @@ body {
   background: var(--bg-void);
   color: var(--text-primary);
   font-family: var(--font-jetbrains), "Courier New", monospace;
-  overflow-x: hidden;
-  perspective: var(--perspective);
+  overflow-x: clip;
+  line-height: 1.65;
 }
 
 h1,
@@ -54,6 +107,126 @@ h2,
 h3,
 h4 {
   font-family: var(--font-syne), system-ui, sans-serif;
+}
+
+section[id] {
+  scroll-margin-top: 5rem;
+}
+
+button,
+a,
+input,
+textarea {
+  touch-action: manipulation;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.theme-dark-action {
+  display: none;
+}
+
+:root[data-theme="light"] .theme-light-action {
+  display: none;
+}
+
+:root[data-theme="light"] .theme-dark-action {
+  display: inline-flex;
+}
+
+:focus-visible {
+  outline: 2px solid var(--neon-cyan);
+  outline-offset: 3px;
+}
+
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 10000;
+  translate: 0 -200%;
+  border: 1px solid var(--neon-cyan-border);
+  border-radius: 0.5rem;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: var(--depth-2);
+}
+
+.skip-link:focus-visible {
+  translate: 0;
+}
+
+.interactive-surface {
+  color: var(--text-muted);
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  transition:
+    color 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    opacity 160ms ease;
+}
+
+.interactive-surface:is(:hover, :focus-visible) {
+  color: var(--neon-cyan);
+  border-color: var(--neon-cyan-border);
+  box-shadow: 0 0 14px var(--neon-cyan-dim);
+}
+
+.interactive-surface:active {
+  background: var(--bg-elevated);
+}
+
+.neon-button {
+  background: var(--neon-cyan);
+  color: var(--accent-foreground);
+  border: 1px solid transparent;
+  transition:
+    filter 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.neon-button:is(:hover, :focus-visible) {
+  filter: brightness(1.08);
+  box-shadow: 0 0 18px var(--neon-cyan-dim);
+}
+
+.neon-button:active {
+  transform: translateY(1px);
+}
+
+.neon-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.secondary-button {
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-card);
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.secondary-button:is(:hover, :focus-visible) {
+  border-color: var(--neon-cyan-border);
+  background: var(--bg-elevated);
+  box-shadow: var(--depth-1);
+}
+
+.secondary-button:active {
+  transform: translateY(1px);
 }
 
 /* --- Scrollbar --- */
@@ -74,15 +247,15 @@ h4 {
 /* --- 3D Grid Background --- */
 .bg-grid {
   background-image:
-    linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
   background-size: 60px 60px;
 }
 
 .bg-grid-3d {
   background-image:
-    linear-gradient(rgba(0, 240, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 240, 255, 0.04) 1px, transparent 1px);
+    linear-gradient(var(--grid-line-strong) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line-strong) 1px, transparent 1px);
   background-size: 60px 60px;
   transform: perspective(800px) rotateX(2deg);
   transform-origin: center top;
@@ -99,8 +272,8 @@ h4 {
     0deg,
     transparent,
     transparent 2px,
-    rgba(0, 0, 0, 0.02) 2px,
-    rgba(0, 0, 0, 0.02) 4px
+    var(--scanline) 2px,
+    var(--scanline) 4px
   );
 }
 
@@ -117,9 +290,15 @@ h4 {
     border-color 0.3s ease;
 }
 
-.card-3d:hover {
-  box-shadow: var(--depth-3);
-  border-color: rgba(0, 240, 255, 0.25);
+.card-3d:focus-within {
+  border-color: var(--neon-cyan-border);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .card-3d:hover {
+    box-shadow: var(--depth-3);
+    border-color: var(--neon-cyan-border);
+  }
 }
 
 .card-3d-tilt {
@@ -135,30 +314,22 @@ h4 {
 
 /* --- Neon Glow --- */
 .glow-cyan {
-  box-shadow:
-    0 0 15px rgba(0, 240, 255, 0.15),
-    0 0 30px rgba(0, 240, 255, 0.05);
+  box-shadow: 0 0 20px var(--neon-cyan-dim);
 }
 .glow-cyan-strong {
-  box-shadow:
-    0 0 20px rgba(0, 240, 255, 0.3),
-    0 0 60px rgba(0, 240, 255, 0.1),
-    0 0 100px rgba(0, 240, 255, 0.05);
+  box-shadow: 0 0 30px var(--neon-cyan-border), 0 0 80px var(--ambient-cyan);
 }
 .glow-amber {
-  box-shadow:
-    0 0 15px rgba(255, 107, 0, 0.15),
-    0 0 30px rgba(255, 107, 0, 0.05);
+  box-shadow: 0 0 20px var(--neon-amber-dim);
 }
 .text-glow-cyan {
-  text-shadow:
-    0 0 10px rgba(0, 240, 255, 0.5),
-    0 0 30px rgba(0, 240, 255, 0.2);
+  text-shadow: 0 0 20px var(--neon-cyan-border);
 }
 .text-glow-amber {
-  text-shadow:
-    0 0 10px rgba(255, 107, 0, 0.5),
-    0 0 30px rgba(255, 107, 0, 0.2);
+  text-shadow: 0 0 20px var(--neon-amber-dim);
+}
+:root[data-theme="light"] :is(.text-glow-cyan, .text-glow-amber) {
+  text-shadow: none;
 }
 
 /* --- 3D Depth Layer (for parallax-like stacking) --- */
@@ -368,13 +539,45 @@ h4 {
 
 .input-3d:focus {
   outline: none;
-  border-color: rgba(0, 240, 255, 0.5); /* lebih terang */
+  border-color: var(--neon-cyan);
   box-shadow:
-    0 0 0 3px rgba(0, 240, 255, 0.1),
+    0 0 0 3px var(--neon-cyan-dim),
     var(--depth-1);
   transform: translateY(-1px);
 }
 
 .input-3d::placeholder {
   color: var(--text-muted);
+}
+
+/* --- Accessibility & Reduced Motion --- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .cursor-blink::after {
+    animation: none;
+    opacity: 1;
+  }
+
+  .glitch-text::before,
+  .glitch-text::after {
+    display: none;
+  }
+
+  .pulse-ring::before {
+    animation: none;
+    display: none;
+  }
+
+  .card-3d,
+  .card-3d-tilt {
+    transform: none !important;
+  }
 }

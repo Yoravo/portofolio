@@ -10,9 +10,106 @@ export const siteConfig = {
   github: "https://github.com/yoravo",
   linkedin: "https://www.linkedin.com/in/radja-ravine-salfriandry/",
   instagram: "https://www.instagram.com/ravine.exe/",
-  cv: "resume-radja-ravine-salfriandry.pdf",
+  cv: "/Resume%20-%20Radja%20Ravine%20Salfriandry.pdf",
   avatar: "/avatar.png",
   formspree: "https://formspree.io/f/mlgarepq",
+};
+
+export const navLinks = [
+  { href: "/#hero", label: "Home", sectionId: "hero" },
+  { href: "/#about", label: "About", sectionId: "about" },
+  { href: "/#journey", label: "Journey", sectionId: "journey" },
+  { href: "/#skills", label: "Skills", sectionId: "skills" },
+  { href: "/projects", label: "Projects", sectionId: "projects" },
+  { href: "/#contact", label: "Contact", sectionId: "contact" },
+];
+
+export const socialLinks = [
+  { href: siteConfig.github, label: "GitHub" },
+  { href: siteConfig.linkedin, label: "LinkedIn" },
+  { href: siteConfig.instagram, label: "Instagram" },
+  { href: `mailto:${siteConfig.email}`, label: "Email" },
+];
+
+export const uiCopy = {
+  skipLink: "Skip to content",
+  navigation: "Main navigation",
+  footerNavigation: "Footer navigation",
+  openMenu: "Open menu",
+  closeMenu: "Close menu",
+  lightMode: "Switch to light mode",
+  darkMode: "Switch to dark mode",
+  footerStatus: "All systems operational.",
+  hero: {
+    greeting: "Hi, I'm",
+    availability: "Available for work",
+    projects: "View Projects",
+    contact: "Contact Me",
+    avatarAlt: "Portrait of Radja Ravine Salfriandry",
+    badges: ["Next.js + React", "Laravel", "Web Developer"],
+  },
+  about: {
+    path: "~/about",
+    title: "About Me",
+    terminal: "about.exe",
+    paragraphs: [
+      "Hi! I'm Radja Ravine Salfriandry, a fresh graduate web developer based in Karawang, Indonesia. I enjoy building modern, responsive, and user-friendly web applications, with a current focus on React and Next.js.",
+      "I have experience working with both frontend and backend technologies, including Laravel and PHP. I'm especially interested in creating interfaces that are clean, functional, and easy to use.",
+      "I'm always looking for opportunities to learn, improve my skills, and gain more real-world experience through meaningful projects and collaboration.",
+    ],
+    languages: "Languages: Indonesian (Native), English (Intermediate)",
+    download: "Download CV",
+    stats: [
+      { value: "2+", label: "Years Learning" },
+      { value: "10+", label: "Projects Built" },
+      { value: "5+", label: "Tech Mastered" },
+      { value: "∞", label: "Passion Level" },
+    ],
+  },
+  journey: {
+    path: "~/journey",
+    title: "Journey",
+    description: "My path so far — education, work, and projects.",
+  },
+  skills: {
+    path: "~/skills",
+    title: "Skills",
+    description: "Technologies and tools I work with daily.",
+  },
+  projects: {
+    path: "~/projects",
+    title: "Projects",
+    description: "Things I've built so far.",
+    metadataTitle: `Projects — ${siteConfig.title.split(" - ")[0]}`,
+    metadataDescription: `A collection of projects built by ${siteConfig.title.split(" - ")[0]}.`,
+    back: "Back to Projects",
+    preview: "Preview of",
+    noPreview: "No preview available",
+    openLive: "Open live site",
+    stack: "Tech Stack",
+    github: "GitHub",
+    demo: "Live Demo",
+  },
+  contact: {
+    path: "~/contact",
+    title: "Contact",
+    description: "Interested in working together? Let's connect.",
+    introduction: "I'm currently open to freelance projects, internships, and full-time opportunities. Feel free to reach out.",
+    name: "Your name",
+    email: "Your email",
+    message: "Your message",
+    required: "All fields are required.",
+    messageHint: "At least 10 characters. Tell me a little about your project.",
+    send: "Send Message",
+    sending: "Sending...",
+    success: "Message sent! I'll get back to you soon.",
+    errors: {
+      name: "Please enter your name.",
+      email: "Please enter a valid email address.",
+      message: "Please enter a message of at least 10 characters.",
+      request: "Message could not be sent. Your draft is safe — please try again or email me.",
+    },
+  },
 };
 
 export type Project = {
