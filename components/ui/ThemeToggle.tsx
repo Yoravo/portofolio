@@ -19,7 +19,7 @@ export default function ThemeToggle() {
     <button
       type="button"
       onClick={toggleTheme}
-      className="interactive-surface inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl"
+      className="btn btn-ghost h-11 w-11 shrink-0 cursor-pointer p-0"
     >
       <span className="theme-light-action">
         <Sun size={18} aria-hidden="true" />
