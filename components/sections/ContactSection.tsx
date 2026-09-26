@@ -1,43 +1,52 @@
 "use client";
 
-import { siteConfig, socialLinks, uiCopy } from "@/lib/config";
-import { motion } from "framer-motion";
-import { Mail, MapPin, Terminal, Send, LoaderCircle } from "lucide-react";
-import { FaGithub, FaLinkedin, FaInstagram } from "react-icons/fa";
-import Link from "next/link";
 import { useRef, useState } from "react";
+import { Check, Copy, LoaderCircle, Mail, MapPin, Send } from "lucide-react";
+import { FaGithub, FaInstagram, FaLinkedin } from "react-icons/fa";
+import { siteConfig, socialLinks, uiCopy } from "@/lib/config";
 
 const copy = uiCopy.contact;
-const socialIcons = [FaGithub, FaLinkedin, FaInstagram, Mail];
+const socialIcons = [FaGithub, FaLinkedin, FaInstagram];
 type Field = "name" | "email" | "message";
 
 export default function ContactSection() {
-  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [errors, setErrors] = useState<Partial<Record<Field, string>>>({});
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [copied, setCopied] = useState(false);
   const submitting = useRef(false);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(siteConfig.email);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard blocked: the mailto link beside it still works.
+    }
+  };
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (submitting.current) return;
-    const form = e.currentTarget;
-    const nextErrors: Partial<Record<Field, string>> = {};
-    if (!formData.name.trim()) nextErrors.name = copy.errors.name;
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) nextErrors.email = copy.errors.email;
-    if (formData.message.trim().length < 10) nextErrors.message = copy.errors.message;
-    setErrors(nextErrors);
-    const firstInvalid = (Object.keys(nextErrors) as Field[])[0];
-    if (firstInvalid) {
+    const el = e.currentTarget;
+    const next: Partial<Record<Field, string>> = {};
+    if (!form.name.trim()) next.name = copy.errors.name;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) next.email = copy.errors.email;
+    if (form.message.trim().length < 10) next.message = copy.errors.message;
+    setErrors(next);
+    const first = (Object.keys(next) as Field[])[0];
+    if (first) {
       setStatus("idle");
-      (form.elements.namedItem(firstInvalid) as HTMLElement | null)?.focus();
+      (el.elements.namedItem(first) as HTMLElement | null)?.focus();
       return;
     }
 
     // Capture before disabling fields; disabled controls are omitted by FormData.
-    const body = new FormData(form);
-    body.set("name", formData.name.trim());
-    body.set("email", formData.email.trim());
-    body.set("message", formData.message.trim());
+    const body = new FormData(el);
+    body.set("name", form.name.trim());
+    body.set("email", form.email.trim());
+    body.set("message", form.message.trim());
     submitting.current = true;
     setStatus("loading");
     try {
@@ -48,7 +57,7 @@ export default function ContactSection() {
         signal: AbortSignal.timeout(15000),
       });
       if (!res.ok) throw new Error("Contact request failed");
-      setFormData({ name: "", email: "", message: "" });
+      setForm({ name: "", email: "", message: "" });
       setStatus("success");
     } catch {
       setStatus("error");
@@ -57,100 +66,157 @@ export default function ContactSection() {
     }
   };
 
-  const updateField = (field: Field, value: string) => {
-    setFormData((current) => ({ ...current, [field]: value }));
-    setErrors((current) => ({ ...current, [field]: undefined }));
+  const update = (field: Field, value: string) => {
+    setForm((c) => ({ ...c, [field]: value }));
+    setErrors((c) => ({ ...c, [field]: undefined }));
     setStatus("idle");
   };
 
-  return (
-    <section id="contact" className="section-padding bg-grid">
-      <div className="mx-auto max-w-6xl">
-        <motion.header initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.3 }} className="mb-12">
-          <div className="mb-2 flex items-center gap-2">
-            <Terminal size={16} className="text-(--neon-cyan)" aria-hidden="true" />
-            <span className="text-xs font-medium tracking-widest uppercase text-(--text-muted)">{copy.path}</span>
-          </div>
-          <h2 className="text-3xl font-bold text-glow-cyan text-(--neon-cyan)">{copy.title}</h2>
-          <p className="mt-2 text-base text-(--text-secondary)">{copy.description}</p>
-        </motion.header>
+  const msgLen = form.message.trim().length;
 
-        <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:gap-12">
-          {/* Contact details */}
-          <div className="flex min-w-0 flex-col gap-6">
-            <p className="max-w-prose text-base leading-relaxed text-(--text-secondary)">{copy.introduction}</p>
-            <div className="space-y-3">
-              <a href={`mailto:${siteConfig.email}`} className="interactive-surface flex min-h-14 items-center gap-3 rounded-xl p-3 text-sm">
-                <Mail size={18} className="shrink-0 text-(--neon-cyan)" aria-hidden="true" />
-                <span className="min-w-0 [overflow-wrap:anywhere]">{siteConfig.email}</span>
+  return (
+    <section id="contact" className="section">
+      <div className="container-x">
+        <div className="mb-4 flex items-center justify-between">
+          <span className="caption font-semibold">{copy.path}</span>
+          <span className="font-mono text-xs text-(--ink-3)">{copy.chapter}</span>
+        </div>
+
+        <h2 className="display text-3xl sm:text-5xl">{copy.title}</h2>
+        <p className="mt-2 max-w-2xl text-base text-(--ink-2)">{copy.description}</p>
+
+        <div className="panels mt-8 grid-cols-1 lg:grid-cols-12">
+          {/* Direct lines */}
+          <div className="panel tone flex flex-col gap-5 p-6 sm:p-8 lg:col-span-5">
+            <p className="bubble text-base">{copy.introduction}</p>
+
+            <div className="mt-4 flex items-stretch border-2 border-(--ink) bg-(--surface)">
+              <a
+                href={`mailto:${siteConfig.email}`}
+                className="flex min-h-12 min-w-0 flex-1 items-center gap-2.5 px-3 font-mono text-sm hover:text-(--accent)"
+              >
+                <Mail size={16} className="shrink-0" aria-hidden="true" />
+                <span className="truncate">{siteConfig.email}</span>
               </a>
-              <p className="flex min-h-14 items-center gap-3 rounded-xl border border-(--border-dim) bg-(--bg-card) p-3 text-sm text-(--text-secondary)">
-                <MapPin size={18} className="shrink-0 text-(--neon-amber)" aria-hidden="true" />
-                {siteConfig.location}
-              </p>
+              <button
+                type="button"
+                onClick={copyEmail}
+                className="inline-flex min-w-12 items-center justify-center gap-1.5 border-l-2 border-(--ink) px-3 font-mono text-xs uppercase hover:bg-(--ink) hover:text-(--page)"
+                aria-label={copy.copyEmail}
+              >
+                {copied ? <Check size={14} aria-hidden="true" /> : <Copy size={14} aria-hidden="true" />}
+              </button>
             </div>
-            <div className="flex gap-3">
-              {socialLinks.slice(0, 3).map((social, i) => {
+            <p role="status" className="-mt-3 min-h-4 font-mono text-xs text-(--ink-2)">
+              {copied ? copy.copied : ""}
+            </p>
+
+            <p className="flex items-center gap-2 font-mono text-sm text-(--ink-2)">
+              <MapPin size={16} aria-hidden="true" />
+              {siteConfig.location}
+            </p>
+
+            <div className="mt-auto flex gap-1.5">
+              {socialLinks.slice(0, 3).map((s, i) => {
                 const Icon = socialIcons[i];
                 return (
-                  <Link key={social.label} href={social.href} target="_blank" rel="noopener noreferrer" className="interactive-surface inline-flex h-11 w-11 items-center justify-center rounded-xl" aria-label={social.label}>
-                    <Icon size={18} aria-hidden="true" />
-                  </Link>
+                  <a
+                    key={s.label}
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-ghost h-11 w-11 bg-(--surface) p-0"
+                    aria-label={s.label}
+                  >
+                    <Icon size={17} aria-hidden="true" />
+                  </a>
                 );
               })}
             </div>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} noValidate aria-busy={status === "loading"} className="card-3d min-w-0 p-5 sm:p-7">
-            <p className="mb-5 text-xs text-(--text-muted)">{copy.required}</p>
+          <form
+            onSubmit={onSubmit}
+            noValidate
+            aria-busy={status === "loading"}
+            className="panel min-w-0 p-6 sm:p-8 lg:col-span-7"
+          >
+            <p className="mb-5 font-mono text-xs text-(--ink-3)">{copy.required}</p>
             <fieldset disabled={status === "loading"} className="min-w-0 space-y-5">
               <div className="grid gap-5 sm:grid-cols-2">
                 {(["name", "email"] as const).map((field) => (
                   <div key={field} className="min-w-0">
-                    <label htmlFor={`contact-${field}`} className="mb-2 block text-sm font-medium text-(--text-primary)">{copy[field]}</label>
+                    <label htmlFor={`contact-${field}`} className="mb-1.5 block text-sm font-semibold">
+                      {copy[field]}
+                    </label>
                     <input
                       id={`contact-${field}`}
                       type={field === "email" ? "email" : "text"}
                       name={field}
                       autoComplete={field}
                       required
-                      value={formData[field]}
-                      onChange={(e) => updateField(field, e.target.value)}
+                      value={form[field]}
+                      onChange={(e) => update(field, e.target.value)}
                       aria-invalid={Boolean(errors[field])}
                       aria-describedby={errors[field] ? `contact-${field}-error` : undefined}
-                      className="input-3d min-h-12 w-full min-w-0 px-4 py-3"
+                      className="field"
                     />
-                    {errors[field] && <p id={`contact-${field}-error`} className="mt-2 text-sm text-(--neon-pink)" role="alert">{errors[field]}</p>}
+                    {errors[field] && (
+                      <p id={`contact-${field}-error`} className="mt-1.5 text-sm font-semibold text-(--accent)">
+                        {errors[field]}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
               <div>
-                <label htmlFor="contact-message" className="mb-2 block text-sm font-medium text-(--text-primary)">{copy.message}</label>
+                <div className="mb-1.5 flex items-center justify-between gap-2">
+                  <label htmlFor="contact-message" className="block text-sm font-semibold">
+                    {copy.message}
+                  </label>
+                  <span className="font-mono text-xs tabular-nums text-(--ink-3)" aria-hidden="true">
+                    {msgLen}/10
+                  </span>
+                </div>
                 <textarea
                   id="contact-message"
                   name="message"
                   required
                   minLength={10}
                   rows={6}
-                  value={formData.message}
-                  onChange={(e) => updateField("message", e.target.value)}
+                  value={form.message}
+                  onChange={(e) => update("message", e.target.value)}
                   aria-invalid={Boolean(errors.message)}
-                  aria-describedby={errors.message ? "contact-message-hint contact-message-error" : "contact-message-hint"}
-                  className="input-3d w-full resize-y px-4 py-3"
+                  aria-describedby={
+                    errors.message ? "contact-message-hint contact-message-error" : "contact-message-hint"
+                  }
+                  className="field resize-y"
                 />
-                <p id="contact-message-hint" className="mt-2 text-xs text-(--text-muted)">{copy.messageHint}</p>
-                {errors.message && <p id="contact-message-error" className="mt-2 text-sm text-(--neon-pink)" role="alert">{errors.message}</p>}
+                <p id="contact-message-hint" className="mt-1.5 text-xs text-(--ink-3)">
+                  {copy.messageHint}
+                </p>
+                {errors.message && (
+                  <p id="contact-message-error" className="mt-1.5 text-sm font-semibold text-(--accent)">
+                    {errors.message}
+                  </p>
+                )}
               </div>
-              <button type="submit" disabled={status === "loading"} className="neon-button inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold sm:w-auto">
-                {status === "loading" ? <LoaderCircle size={16} className="animate-spin" aria-hidden="true" /> : <Send size={16} aria-hidden="true" />}
+              <button type="submit" className="btn btn-primary w-full uppercase tracking-wider sm:w-auto">
+                {status === "loading" ? (
+                  <LoaderCircle size={16} className="animate-spin" aria-hidden="true" />
+                ) : (
+                  <Send size={16} aria-hidden="true" />
+                )}
                 {status === "loading" ? copy.sending : copy.send}
               </button>
             </fieldset>
-            <p role="status" aria-atomic="true" className="mt-4 text-sm text-(--neon-green)">
-              {status === "loading" ? copy.sending : status === "success" ? copy.success : ""}
+            <p role="status" aria-atomic="true" className="mt-4 text-sm font-semibold">
+              {status === "success" ? copy.success : ""}
             </p>
-            <p role="alert" className="text-sm text-(--neon-pink)">{status === "error" ? copy.errors.request : ""}</p>
+            <p role="alert" className="text-sm font-semibold text-(--accent)">
+              {status === "error" ? copy.errors.request : ""}
+            </p>
           </form>
         </div>
       </div>

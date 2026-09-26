@@ -1,101 +1,115 @@
 "use client";
 
+import { useState } from "react";
+import { Check, Copy, Download, MapPin } from "lucide-react";
 import { siteConfig, uiCopy } from "@/lib/config";
-import { motion } from "framer-motion";
-import { MapPin, Download, Terminal } from "lucide-react";
-import TiltCard from "@/components/ui/TiltCard";
 
 export default function AboutSection() {
+  const [copied, setCopied] = useState(false);
+  const copy = uiCopy.about;
+
+  const onCopy = async () => {
+    const text = [
+      copy.lead,
+      "",
+      ...copy.paragraphs,
+      "",
+      `Location: ${siteConfig.location}`,
+      `Languages: ${copy.languages}`,
+    ].join("\n");
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Handled
+    }
+  };
+
   return (
-    <section id="about" className="section-padding bg-grid">
-      <div className="mx-auto max-w-6xl">
-        <motion.header
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.3 }}
-          className="mb-12"
-        >
-          <div className="mb-2 flex items-center gap-2">
-            <Terminal size={16} style={{ color: "var(--neon-cyan)" }} aria-hidden="true" />
-            <span className="text-xs font-medium tracking-widest uppercase" style={{ color: "var(--text-muted)" }}>
-              {uiCopy.about.path}
-            </span>
-          </div>
-          <h2 className="text-balance text-3xl font-bold text-glow-cyan" style={{ color: "var(--neon-cyan)" }}>
-            {uiCopy.about.title}
-          </h2>
-        </motion.header>
+    <section id="about" className="section border-b-2 border-(--ink)">
+      <div className="container-x">
+        {/* Chapter marker */}
+        <div className="mb-4 flex items-center justify-between">
+          <span className="caption font-semibold">{copy.path}</span>
+          <span className="font-mono text-xs text-(--ink-3)">{copy.chapter}</span>
+        </div>
 
-        <div className="flex flex-col gap-10 md:flex-row md:items-start lg:gap-14">
-          {/* Terminal bio */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.3, delay: 0.05 }}
-            className="min-w-0 flex-1 space-y-5"
-          >
-            <TiltCard className="overflow-hidden" intensity={4}>
-              {/* Terminal header */}
-              <div className="flex items-center gap-3 border-b border-(--border-dim) bg-(--bg-secondary) px-4 py-3">
-                <div className="flex gap-1.5" aria-hidden="true">
-                  <span className="h-2.5 w-2.5 rounded-full bg-red-500/70" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-yellow-500/70" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-green-500/70" />
-                </div>
-                <span className="text-xs font-medium tracking-wider text-(--text-muted)">
-                  {uiCopy.about.terminal}
-                </span>
-              </div>
+        <h2 className="display mb-6 text-3xl sm:text-5xl">{copy.title}</h2>
 
-              {/* Bio */}
-              <div className="space-y-4 p-5 sm:p-6">
-                {uiCopy.about.paragraphs.map((paragraph) => (
-                  <p key={paragraph} className="text-sm leading-relaxed text-(--text-secondary) sm:text-base">
-                    <span className="font-semibold text-(--neon-cyan)" aria-hidden="true">{">"} </span>
-                    {paragraph}
-                  </p>
-                ))}
-                <p className="text-sm leading-relaxed text-(--text-secondary)">
-                  <span className="font-semibold text-(--neon-amber)" aria-hidden="true">{">"} </span>
-                  {uiCopy.about.languages}
-                </p>
-              </div>
-            </TiltCard>
+        {/* Two-panel spread */}
+        <div className="panels grid-cols-1 lg:grid-cols-12">
+          {/* Narrative panel (7 cols) */}
+          <div className="panel col-span-1 p-6 sm:p-8 lg:col-span-7">
+            <p className="font-mono text-xs font-semibold uppercase tracking-wider text-(--accent)">
+              {copy.narrative}
+            </p>
+            <p className="mt-2 text-lg font-semibold leading-snug text-(--ink) sm:text-xl">
+              {copy.lead}
+            </p>
 
-            {/* Location + CV */}
-            <div className="flex flex-wrap items-center gap-3 pt-1">
-              <div className="inline-flex min-h-11 items-center gap-2 text-sm text-(--text-secondary)">
-                <MapPin size={16} aria-hidden="true" />
-                {siteConfig.location}
-              </div>
-              <a href={siteConfig.cv} className="neon-button inline-flex min-h-11 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold" download>
-                <Download size={16} aria-hidden="true" />
-                {uiCopy.about.download}
+            <div className="mt-5 space-y-3.5 text-sm leading-relaxed text-(--ink-2) sm:text-base">
+              {copy.paragraphs.map((p, idx) => (
+                <p key={idx}>{p}</p>
+              ))}
+            </div>
+
+            <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-(--line) pt-4">
+              <span className="inline-flex items-center gap-1.5 font-mono text-xs text-(--ink-3)">
+                <MapPin size={14} aria-hidden="true" />
+                <span>{siteConfig.location}</span>
+              </span>
+              <span className="font-mono text-xs text-(--ink-3)">
+                {copy.languages}
+              </span>
+              <a
+                href={siteConfig.cv}
+                download
+                className="btn btn-primary ml-auto text-xs uppercase"
+              >
+                <Download size={14} aria-hidden="true" />
+                <span>{copy.download}</span>
               </a>
             </div>
-          </motion.div>
+          </div>
 
-          {/* Stat tiles */}
-          <motion.dl
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.3, delay: 0.1 }}
-            className="grid grid-cols-2 gap-3 md:w-72"
-          >
-            {uiCopy.about.stats.map((stat) => (
-              <TiltCard key={stat.label} className="flex flex-col p-4 text-center" intensity={8}>
-                <dt className="order-2 mt-1 text-xs font-medium uppercase tracking-wider text-(--text-muted)">
-                  {stat.label}
-                </dt>
-                <dd className="order-1 text-2xl font-bold tabular-nums text-(--text-primary)">
-                  {stat.value}
-                </dd>
-              </TiltCard>
-            ))}
-          </motion.dl>
+          {/* Specs panel (5 cols) */}
+          <div className="panel tone col-span-1 p-6 sm:p-8 lg:col-span-5">
+            <div className="flex items-center justify-between border-b-2 border-(--ink) pb-3">
+              <span className="caption font-bold">{copy.dossier}</span>
+              <button
+                type="button"
+                onClick={onCopy}
+                className="btn btn-ghost h-8 gap-1.5 px-2.5 font-mono text-xs uppercase"
+                aria-label={copy.copyDossierLabel}
+              >
+                {copied ? (
+                  <>
+                    <Check size={12} className="text-(--accent)" aria-hidden="true" />
+                    <span>{copy.copied}</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy size={12} aria-hidden="true" />
+                    <span>{copy.copyDossier}</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            <dl className="mt-4 divide-y divide-(--line)">
+              {copy.specs.map((item) => (
+                <div key={item.label} className="py-2.5">
+                  <dt className="font-mono text-[11px] font-semibold uppercase tracking-wider text-(--ink-3)">
+                    {item.label}
+                  </dt>
+                  <dd className="mt-0.5 text-sm font-semibold text-(--ink)">
+                    {item.value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
         </div>
       </div>
     </section>

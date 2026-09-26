@@ -2,192 +2,129 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Menu, X } from "lucide-react";
-import { siteConfig, navLinks, uiCopy } from "@/lib/config";
-import { cn } from "@/lib/utils";
+import { navLinks, siteConfig, uiCopy } from "@/lib/config";
 import ThemeToggle from "@/components/ui/ThemeToggle";
+
+const sectionIds = navLinks.map((l) => l.sectionId);
+const [firstName, ...rest] = siteConfig.name.toUpperCase().split(" ");
+const middle = rest.slice(0, -1).join(" ");
+const lastName = rest.at(-1);
 
 export default function Navbar() {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState("hero");
-  const [scrolled, setScrolled] = useState(false);
-  const toggleBtnRef = useRef<HTMLButtonElement>(null);
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState("hero");
+  const toggleRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 16);
-
-      if (pathname !== "/") return;
-      const sectionIds = ["hero", "about", "journey", "skills", "contact"];
-      let current = "hero";
-      sectionIds.forEach((id) => {
+    if (pathname !== "/") return;
+    const onScroll = () => {
+      let current = sectionIds[0];
+      for (const id of sectionIds) {
         const el = document.getElementById(id);
-        if (el && el.getBoundingClientRect().top <= window.innerHeight * 0.45) {
-          current = id;
-        }
-      });
-      setActiveSection(current);
+        if (el && el.getBoundingClientRect().top <= window.innerHeight * 0.45) current = id;
+      }
+      setActive(current);
     };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
   }, [pathname]);
 
-  // Handle Escape key to close mobile menu
   useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setIsOpen(false);
-        toggleBtnRef.current?.focus();
-      }
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      setOpen(false);
+      toggleRef.current?.focus();
     };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen]);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
 
-  const isActive = (link: (typeof navLinks)[0]) => {
-    if (pathname.startsWith("/projects") && link.href === "/projects") {
-      return true;
-    }
-    if (pathname !== "/") return false;
-    return link.sectionId === activeSection;
-  };
+  // Project pages belong to the Projects chapter.
+  const isCurrent = (id: string) =>
+    pathname.startsWith("/projects") ? id === "projects" : pathname === "/" && id === active;
 
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-50 w-full transition-colors duration-200",
-        scrolled ? "border-b backdrop-blur-md" : "bg-transparent",
-      )}
-      style={{
-        borderColor: scrolled ? "var(--border-dim)" : "transparent",
-        background: scrolled ? "var(--nav-surface)" : "transparent",
-        boxShadow: scrolled ? "var(--depth-1)" : "none",
-      }}
-    >
-      <nav
-        className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3.5"
-        aria-label={uiCopy.navigation}
-      >
-        {/* Logo */}
+    <header className="sticky top-0 z-40 border-b-2 border-(--ink) bg-(--page)">
+      <div className="container-x flex h-14 items-center justify-between gap-4">
         <Link
           href="/"
-          className="group inline-flex min-h-[44px] items-center gap-2 rounded-lg text-xs font-bold tracking-widest uppercase transition-colors"
-          style={{ color: "var(--neon-cyan)" }}
+          className="display inline-flex min-h-11 items-center text-lg text-(--ink) hover:text-(--accent)"
         >
-          <span className="text-glow-cyan">
-            {">"} {siteConfig.title.split(" - ")[0].split(" ")[0]}
-          </span>
-          <span
-            className="transition-colors group-hover:text-(--neon-cyan)"
-            style={{ color: "var(--text-muted)" }}
-          >
-            _
-          </span>
+          {firstName} {middle}
+          <span className="hidden xl:inline">&nbsp;{lastName}</span>
         </Link>
 
-        {/* Desktop nav + ThemeToggle */}
-        <div className="hidden items-center gap-2 md:flex">
-          <ul className="flex items-center gap-1">
+        <nav aria-label={uiCopy.navigation} className="hidden items-center gap-2 lg:flex">
+          <ul className="flex items-center">
             {navLinks.map((link) => {
-              const active = isActive(link);
+              const current = isCurrent(link.sectionId);
               return (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    aria-current={active ? "page" : undefined}
-                    className={cn(
-                      "inline-flex min-h-[40px] items-center rounded-lg px-3 py-2 text-xs font-medium tracking-wide uppercase transition-all duration-150",
-                      active
-                        ? "font-semibold"
-                        : "text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--bg-elevated)",
-                    )}
-                    style={
-                      active
-                        ? {
-                            color: "var(--neon-cyan)",
-                            background: "var(--neon-cyan-dim)",
-                            border: "1px solid var(--neon-cyan-border)",
-                          }
-                        : undefined
-                    }
+                    aria-current={current ? "location" : undefined}
+                    className={`inline-flex h-11 items-center gap-1.5 px-2.5 font-mono text-xs font-semibold uppercase tracking-wider ${
+                      current ? "bg-(--ink) text-(--page)" : "text-(--ink-2) hover:text-(--ink)"
+                    }`}
                   >
+                    <span className="hidden opacity-70 xl:inline">{link.chapter}</span>
                     {link.label}
                   </Link>
                 </li>
               );
             })}
           </ul>
+          <ThemeToggle />
+        </nav>
 
-          <div className="ml-2 pl-2 border-l" style={{ borderColor: "var(--border-dim)" }}>
-            <ThemeToggle />
-          </div>
-        </div>
-
-        {/* Mobile controls: ThemeToggle + Hamburger */}
-        <div className="flex items-center gap-2 md:hidden">
+        <div className="flex items-center gap-1.5 lg:hidden">
           <ThemeToggle />
           <button
-            ref={toggleBtnRef}
+            ref={toggleRef}
             type="button"
-            className="interactive-surface inline-flex h-11 w-11 items-center justify-center rounded-xl"
-            style={{ color: "var(--text-secondary)" }}
-            onClick={() => setIsOpen(!isOpen)}
-            aria-expanded={isOpen}
+            onClick={() => setOpen(!open)}
+            aria-expanded={open}
             aria-controls="mobile-nav"
-            aria-label={isOpen ? uiCopy.closeMenu : uiCopy.openMenu}
+            aria-label={open ? uiCopy.closeMenu : uiCopy.openMenu}
+            className="btn btn-ghost h-11 w-11 p-0"
           >
-            {isOpen ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
+            {open ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
           </button>
         </div>
-      </nav>
+      </div>
 
-      {/* Mobile dropdown menu */}
-      {isOpen && (
-        <div
+      {open && (
+        <nav
           id="mobile-nav"
-          className="border-t px-6 py-4 md:hidden shadow-lg"
-          style={{
-            borderColor: "var(--border-dim)",
-            background: "var(--bg-card)",
-          }}
+          aria-label={uiCopy.navigation}
+          className="border-t-2 border-(--ink) bg-(--surface) lg:hidden"
         >
-          <ul className="flex flex-col gap-1.5">
+          <ul className="container-x flex flex-col py-2">
             {navLinks.map((link) => {
-              const active = isActive(link);
+              const current = isCurrent(link.sectionId);
               return (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    onClick={() => setIsOpen(false)}
-                    aria-current={active ? "page" : undefined}
-                    className={cn(
-                      "flex min-h-[44px] items-center rounded-lg px-3.5 py-2 text-xs font-medium tracking-wide uppercase transition-all",
-                      active
-                        ? "font-semibold"
-                        : "text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--bg-elevated)",
-                    )}
-                    style={
-                      active
-                        ? {
-                            color: "var(--neon-cyan)",
-                            background: "var(--neon-cyan-dim)",
-                            border: "1px solid var(--neon-cyan-border)",
-                          }
-                        : undefined
-                    }
+                    onClick={() => setOpen(false)}
+                    aria-current={current ? "location" : undefined}
+                    className={`flex h-12 items-center justify-between px-3 font-mono text-sm font-semibold uppercase tracking-wider ${
+                      current ? "bg-(--ink) text-(--page)" : "text-(--ink) hover:bg-(--surface-2)"
+                    }`}
                   >
                     {link.label}
+                    <span className="opacity-70">{link.chapter}</span>
                   </Link>
                 </li>
               );
             })}
           </ul>
-        </div>
+        </nav>
       )}
     </header>
   );

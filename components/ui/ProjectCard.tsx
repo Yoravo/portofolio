@@ -1,82 +1,83 @@
-"use client";
-
-import { Project, uiCopy } from "@/lib/config";
+import Image from "next/image";
+import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
-import Link from "next/link";
-import { motion, useReducedMotion } from "framer-motion";
-import Image from "next/image";
+import { Project, uiCopy } from "@/lib/config";
 
 export default function ProjectCard({ project }: { project: Project }) {
-  const reducedMotion = useReducedMotion();
+  const copy = uiCopy.projects;
 
   return (
-    <motion.article
-      whileHover={reducedMotion ? undefined : { y: -4 }}
-      transition={{ duration: 0.2 }}
-      className="card-3d group flex min-w-0 flex-col overflow-hidden"
-    >
-      {/* Preview */}
-      <Link href={`/projects/${project.slug}`} aria-label={`${uiCopy.projects.preview} ${project.title}`}>
-        <div
-          className="relative aspect-video w-full overflow-hidden"
-          style={{ background: "var(--bg-secondary)" }}
-        >
+    <article className="panel flex flex-col p-5 sm:p-6">
+      <Link
+        href={`/projects/${project.slug}`}
+        aria-label={`${copy.preview} ${project.title}`}
+        className="block"
+      >
+        <div className="relative aspect-video w-full border-2 border-(--ink) bg-(--surface-2)">
           {project.image ? (
             <Image
               src={project.image}
-              alt={`${uiCopy.projects.preview} ${project.title}`}
+              alt=""
               fill
-              sizes="(min-width: 1200px) 368px, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+              sizes="(min-width: 1024px) 380px, 100vw"
               className="object-cover object-top"
             />
-          ) : project.demo ? (
-            <div className="pointer-events-none h-full w-full" aria-hidden="true">
-              <iframe
-                src={project.demo}
-                title={`${uiCopy.projects.preview} ${project.title}`}
-                className="h-[200%] w-[200%] origin-top-left scale-50 border-0"
-                loading="lazy"
-                sandbox="allow-scripts allow-same-origin"
-                tabIndex={-1}
-              />
-            </div>
           ) : (
-            <div className="flex h-full items-center justify-center">
-              <span className="text-sm text-(--text-muted)">{uiCopy.projects.noPreview}</span>
+            <div className="flex h-full items-center justify-center p-4 text-center font-mono text-xs text-(--ink-3)">
+              <span>{copy.noPreview}</span>
             </div>
           )}
         </div>
       </Link>
 
-      {/* Content */}
-      <div className="flex flex-1 flex-col gap-4 border-t border-(--border-dim) p-5 sm:p-6">
-        <h2 className="text-xl font-semibold leading-snug">
-          <Link href={`/projects/${project.slug}`} className="rounded text-(--text-primary) transition-colors hover:text-(--neon-cyan)">
+      <div className="mt-4 flex flex-1 flex-col">
+        <h2 className="display text-xl sm:text-2xl">
+          <Link
+            href={`/projects/${project.slug}`}
+            className="hover:text-(--accent)"
+          >
             {project.title}
           </Link>
         </h2>
-        <p className="flex-1 text-base leading-relaxed text-(--text-secondary)">
+        <p className="mt-2 flex-1 text-sm leading-relaxed text-(--ink-2)">
           {project.description}
         </p>
-        <ul className="flex flex-wrap gap-2" aria-label={uiCopy.projects.stack}>
+
+        <ul className="my-4 flex flex-wrap gap-1.5" aria-label={copy.stack}>
           {project.tags.map((tag) => (
-            <li key={tag} className="rounded-md border border-(--neon-cyan-border) bg-(--neon-cyan-dim) px-2.5 py-1 text-xs font-medium text-(--neon-cyan)">
+            <li
+              key={tag}
+              className="border border-(--line) bg-(--surface-2) px-2.5 py-1 font-mono text-xs text-(--ink)"
+            >
               {tag}
             </li>
           ))}
         </ul>
-        <div className="flex flex-wrap items-center gap-3 border-t border-(--border-dim) pt-4">
-          <Link href={project.github} target="_blank" rel="noopener noreferrer" className="secondary-button inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-medium">
-            <FaGithub size={16} aria-hidden="true" /> {uiCopy.projects.github}
+
+        <div className="flex flex-wrap items-center gap-2 border-t border-(--line) pt-4">
+          <Link
+            href={project.github}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-ghost text-xs uppercase"
+          >
+            <FaGithub size={14} aria-hidden="true" />
+            <span>{copy.github}</span>
           </Link>
           {project.demo && (
-            <Link href={project.demo} target="_blank" rel="noopener noreferrer" className="secondary-button inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-medium">
-              <ExternalLink size={16} aria-hidden="true" /> {uiCopy.projects.demo}
+            <Link
+              href={project.demo}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-primary text-xs uppercase"
+            >
+              <span>{copy.demo}</span>
+              <ExternalLink size={13} aria-hidden="true" />
             </Link>
           )}
         </div>
       </div>
-    </motion.article>
+    </article>
   );
 }

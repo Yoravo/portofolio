@@ -1,282 +1,129 @@
 "use client";
 
-import { siteConfig, socialLinks, uiCopy } from "@/lib/config";
-import { ArrowRight, Mail } from "lucide-react";
-import Link from "next/link";
-import { motion, useReducedMotion } from "framer-motion";
-import { FaGithub, FaLinkedin, FaInstagram } from "react-icons/fa";
 import Image from "next/image";
+import Link from "next/link";
+import dynamic from "next/dynamic";
+import { ArrowRight, Mail } from "lucide-react";
+import { FaGithub, FaInstagram, FaLinkedin } from "react-icons/fa";
+import { useState } from "react";
+import { siteConfig, socialLinks, uiCopy } from "@/lib/config";
 
-const firstName = siteConfig.title.split(" - ")[0];
+// The canvas is interactive-only; keep it out of the server HTML and the initial chunk.
+const CyberScene3D = dynamic(() => import("@/components/ui/CyberScene3D"), {
+  ssr: false,
+  loading: () => <div className="tone h-full w-full" aria-hidden="true" />,
+});
+
+const socialIcon = (label: string) => {
+  switch (label) {
+    case "GitHub":
+      return <FaGithub size={17} aria-hidden="true" />;
+    case "LinkedIn":
+      return <FaLinkedin size={17} aria-hidden="true" />;
+    case "Instagram":
+      return <FaInstagram size={17} aria-hidden="true" />;
+    default:
+      return <Mail size={17} aria-hidden="true" />;
+  }
+};
 
 export default function HeroSection() {
-  const reducedMotion = useReducedMotion();
-
-  const socialIcon = (label: string) => {
-    switch (label) {
-      case "GitHub":
-        return <FaGithub size={18} aria-hidden="true" />;
-      case "LinkedIn":
-        return <FaLinkedin size={18} aria-hidden="true" />;
-      case "Instagram":
-        return <FaInstagram size={18} aria-hidden="true" />;
-      default:
-        return <Mail size={18} aria-hidden="true" />;
-    }
-  };
+  const [mode, setMode] = useState<"3d" | "photo">("3d");
+  const copy = uiCopy.hero;
 
   return (
-    <section
-      id="hero"
-      className="relative min-h-[calc(100dvh-65px)] overflow-hidden bg-grid"
-      style={{ perspective: "var(--perspective)" }}
-    >
-      {/* Ambient glow */}
-      <div
-        className="pointer-events-none absolute -top-40 -right-40 h-125 w-125 rounded-full blur-[120px]"
-        style={{
-          background: "var(--ambient-cyan)",
-          transform: "translateZ(-60px)",
-        }}
-      />
-      <div
-        className="pointer-events-none absolute -bottom-40 -left-40 h-100 w-100 rounded-full blur-[120px]"
-        style={{
-          background: "var(--ambient-purple)",
-          transform: "translateZ(-60px)",
-        }}
-      />
-
-      <div className="relative mx-auto flex min-h-[calc(100dvh-65px-80px)] max-w-6xl flex-col justify-center px-6 pt-10 pb-16 md:flex-row md:items-center md:gap-16">
-        {/* Left — text content */}
-        <div className="flex-1" style={{ transformStyle: "preserve-3d" }}>
-          {/* Available badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="mb-6 inline-flex items-center gap-2 rounded-full px-3 py-1.5"
-            style={{
-              background: "var(--neon-cyan-dim)",
-              border: "1px solid var(--neon-cyan-border)",
-              transform: "translateZ(10px)",
-            }}
-          >
-            <span className="relative flex h-2.5 w-2.5 items-center justify-center">
-              <span
-                className="absolute inline-flex h-full w-full rounded-full opacity-75 pulse-ring"
-                style={{ background: "var(--neon-green)" }}
-              />
-              <span
-                className="relative inline-flex h-2 w-2 rounded-full"
-                style={{ background: "var(--neon-green)" }}
-              />
-            </span>
-            <span
-              className="text-xs font-semibold uppercase tracking-wider"
-              style={{ color: "var(--neon-green)" }}
-            >
-              {uiCopy.hero.availability}
-            </span>
-          </motion.div>
-
-          {/* Name */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.05 }}
-            className="mb-4"
-          >
-            <p
-              className="mb-2 text-base font-medium sm:text-lg"
-              style={{ color: "var(--text-secondary)" }}
-            >
-              {uiCopy.hero.greeting}
-            </p>
-            <h1
-              className="text-balance text-4xl font-bold tracking-tight text-glow-cyan sm:text-5xl md:text-6xl glitch-text"
-              data-text={firstName}
-              style={{ color: "var(--neon-cyan)" }}
-            >
-              {firstName}
-            </h1>
-          </motion.div>
-
-          {/* Role */}
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.1 }}
-            className="mb-4 text-xl font-semibold cursor-blink sm:text-2xl"
-            style={{ color: "var(--neon-amber)" }}
-          >
-            {siteConfig.role}
-          </motion.p>
-
-          {/* Tagline */}
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.15 }}
-            className="mb-4 max-w-xl text-sm leading-relaxed sm:text-base"
-            style={{ color: "var(--text-secondary)" }}
-          >
-            {siteConfig.tagline}
-          </motion.p>
-
-          {/* Support text */}
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.2 }}
-            className="mb-8 max-w-xl text-xs leading-relaxed"
-            style={{ color: "var(--text-muted)" }}
-          >
-            {siteConfig.supportText}
-          </motion.p>
-
-          {/* CTA buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.25 }}
-            className="mb-10 flex flex-wrap items-center gap-3"
-          >
-            <Link
-              href="/projects"
-              className="neon-button inline-flex min-h-[44px] items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold shadow-md"
-            >
-              {uiCopy.hero.projects} <ArrowRight size={16} aria-hidden="true" />
-            </Link>
-            <Link
-              href="/#contact"
-              className="secondary-button inline-flex min-h-[44px] items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium"
-            >
-              <Mail size={16} aria-hidden="true" /> {uiCopy.hero.contact}
-            </Link>
-          </motion.div>
-
-          {/* Social icons */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.3 }}
-            className="flex items-center gap-2.5"
-          >
-            {socialLinks.map((social) => (
-              <Link
-                key={social.label}
-                href={social.href}
-                target={social.href.startsWith("mailto") ? undefined : "_blank"}
-                rel="noopener noreferrer"
-                className="interactive-surface inline-flex h-11 w-11 items-center justify-center rounded-xl"
-                aria-label={social.label}
-              >
-                {socialIcon(social.label)}
-              </Link>
-            ))}
-          </motion.div>
+    <section id="hero" className="section border-b-2 border-(--ink)">
+      <div className="container-x">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <span className="caption">
+            {copy.chapter} · {copy.volume}
+          </span>
+          <span className="caption border-(--accent) text-(--accent)">{copy.status}</span>
         </div>
 
-        {/* Right — 3D avatar */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.4, delay: 0.15 }}
-          className="mt-12 flex shrink-0 justify-center md:mt-0"
-          style={{ perspective: "600px" }}
-        >
-          <div className="relative animate-idle-3d rounded-full">
-            {/* Glow behind avatar */}
-            <div
-              className="absolute inset-0 rounded-full blur-xl"
-              style={{
-                background: "var(--ambient-cyan)",
-                transform: "translateZ(-20px)",
-              }}
-            />
+        {/* Cover spread: the title panel reads first, the 3D figure sits beside it. */}
+        <div className="panels grid-cols-1 lg:grid-cols-12">
+          <div className="panel ink-in flex flex-col p-5 sm:p-8 lg:col-span-7">
+            <span className="font-mono text-xs uppercase tracking-wider text-(--ink-3)">
+              {copy.subtitle} · {copy.location}
+            </span>
+            <h1 className="display mt-3 text-[clamp(2.6rem,11vw,6.5rem)]">
+              {copy.title}
+            </h1>
 
-            {/* Avatar ring */}
-            <div
-              className="relative rounded-full p-0.5 glow-cyan-strong"
-              style={{
-                background:
-                  "linear-gradient(135deg, var(--neon-cyan), var(--neon-purple))",
-                transformStyle: "preserve-3d",
-              }}
-            >
-              <div className="relative h-56 w-56 overflow-hidden rounded-full md:h-72 md:w-72">
-                <Image
-                  src={siteConfig.avatar}
-                  alt={uiCopy.hero.avatarAlt}
-                  width={288}
-                  height={288}
-                  priority
-                  className="h-full w-full object-cover"
-                />
-                {/* Scanline overlay */}
-                <div
-                  className="pointer-events-none absolute inset-0 rounded-full"
-                  style={{
-                    background:
-                      "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px)",
-                  }}
-                />
-                <div
-                  className="pointer-events-none absolute inset-0 rounded-full"
-                  style={{
-                    background: `linear-gradient(to top, var(--overlay-avatar), transparent 60%)`,
-                  }}
-                />
+            <p className="bubble mt-6 mb-8 max-w-xl text-base sm:text-lg">{copy.speech}</p>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <Link href="/#projects" className="btn btn-primary">
+                {copy.projects}
+                <ArrowRight size={16} aria-hidden="true" />
+              </Link>
+              <Link href="/#contact" className="btn btn-ghost">
+                {copy.contact}
+              </Link>
+              <a href={siteConfig.cv} download className="btn btn-ghost">
+                {copy.resume}
+              </a>
+            </div>
+
+            <div className="mt-auto flex items-center gap-1.5 border-t border-(--line) pt-4 max-lg:mt-6">
+              {socialLinks.map((s) => (
+                <a
+                  key={s.label}
+                  href={s.href}
+                  target={s.href.startsWith("mailto") ? undefined : "_blank"}
+                  rel="noopener noreferrer"
+                  className="btn btn-ghost h-11 w-11 p-0"
+                  aria-label={s.label}
+                >
+                  {socialIcon(s.label)}
+                </a>
+              ))}
+            </div>
+          </div>
+
+          <figure
+            className="panel tone ink-in flex flex-col p-4 sm:p-5 lg:col-span-5"
+            style={{ "--d": "180ms" } as React.CSSProperties}
+          >
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <span className="caption">{mode === "3d" ? copy.panel3d : copy.panelPhoto}</span>
+              <div className="flex border-2 border-(--ink)" role="group" aria-label={copy.panel3d}>
+                {(["3d", "photo"] as const).map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    aria-pressed={mode === m}
+                    onClick={() => setMode(m)}
+                    className={`min-h-9 px-2.5 font-mono text-xs uppercase ${
+                      mode === m ? "bg-(--ink) text-(--page)" : "bg-(--surface) text-(--ink)"
+                    }`}
+                  >
+                    {m === "3d" ? copy.viewModes.matrix3d : copy.viewModes.avatar}
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* Floating badge 1: Next.js */}
-            <motion.div
-              animate={reducedMotion ? undefined : { y: [0, -6, 0] }}
-              transition={{ duration: 3, repeat: 0, ease: "easeInOut" }}
-              className="card-3d absolute -bottom-3 -right-3 rounded-lg px-3 py-2"
-              style={{
-                transform: "translateZ(40px)",
-                borderColor: "var(--neon-cyan-border)",
-              }}
-            >
-              <p className="text-xs font-semibold" style={{ color: "var(--neon-cyan)" }}>
-                {uiCopy.hero.badges[0]}
-              </p>
-            </motion.div>
+            <div className="relative aspect-square w-full border-2 border-(--ink) bg-(--surface)">
+              {mode === "3d" ? (
+                <CyberScene3D label={copy.label3d} />
+              ) : (
+                <Image
+                  src={siteConfig.avatar}
+                  alt={copy.avatarAlt}
+                  fill
+                  sizes="(min-width: 1024px) 420px, 100vw"
+                  className="object-cover"
+                />
+              )}
+            </div>
 
-            {/* Floating badge 2: Laravel */}
-            <motion.div
-              animate={reducedMotion ? undefined : { y: [0, -5, 0] }}
-              transition={{ duration: 2.8, repeat: 0, ease: "easeInOut" }}
-              className="card-3d absolute -top-3 -right-3 rounded-lg px-3 py-2"
-              style={{
-                transform: "translateZ(35px)",
-                borderColor: "var(--border-subtle)",
-              }}
-            >
-              <p className="text-xs font-semibold" style={{ color: "var(--neon-purple)" }}>
-                {uiCopy.hero.badges[1]}
-              </p>
-            </motion.div>
-
-            {/* Floating badge 3: Web Developer */}
-            <motion.div
-              animate={reducedMotion ? undefined : { y: [0, 6, 0] }}
-              transition={{ duration: 3.5, repeat: 0, ease: "easeInOut" }}
-              className="card-3d absolute -top-3 -left-3 rounded-lg px-3 py-2"
-              style={{
-                transform: "translateZ(25px)",
-                borderColor: "var(--border-subtle)",
-              }}
-            >
-              <p className="text-xs font-semibold" style={{ color: "var(--neon-amber)" }}>
-                {uiCopy.hero.badges[2]}
-              </p>
-            </motion.div>
-          </div>
-        </motion.div>
+            <figcaption className="mt-2 font-mono text-xs text-(--ink-2)">
+              {mode === "3d" ? copy.hint3d : copy.hintPhoto}
+            </figcaption>
+          </figure>
+        </div>
       </div>
     </section>
   );
