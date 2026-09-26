@@ -1,0 +1,425 @@
+/* Kaneki Ken mascot. Character colours are fixed (same in both themes);
+   the frame, bubble and button use the ink theme tokens. */
+
+.root {
+  display: flex;
+  width: 100%;
+  max-width: 17rem;
+  margin-inline: auto;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1.1rem;
+  user-select: none;
+}
+
+/* Manga speech bubble: ink outline, slanted tail pointing at his head. */
+.bubble {
+  position: relative;
+  border: 2px solid var(--ink);
+  border-radius: 1.5rem;
+  background: var(--surface);
+  padding: 0.6rem 0.9rem;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  text-align: center;
+  text-wrap: balance;
+  color: var(--ink);
+}
+
+.bubble::before,
+.bubble::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  clip-path: polygon(0 0, 100% 0, 30% 100%);
+}
+
+.bubble::before {
+  left: calc(50% - 10px);
+  width: 22px;
+  height: 16px;
+  background: var(--ink);
+}
+
+.bubble::after {
+  left: calc(50% - 7px);
+  width: 16px;
+  height: 11px;
+  margin-top: -2px;
+  background: var(--surface);
+}
+
+/* Portrait frame: a single manga panel. */
+.stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1.04;
+  overflow: hidden;
+  border: 2px solid var(--ink);
+  background: var(--surface-2);
+  cursor: default;
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: default;
+  --look-x: 0px;
+  --look-y: 0px;
+}
+
+/* ── HAIR AND CHARACTER ARE STRICTLY NOT CLICKABLE ── */
+.hair,
+.hairGroup,
+.character,
+.faceLayer {
+  pointer-events: none !important;
+  cursor: default !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SYNCHRONIZED ANIME TRANSFORMATION (2.4s total)
+   Human Mode (Image #8) → Ghoul Mode (Image #7)
+   ══════════════════════════════════════════════════════════════ */
+
+/* Human Mode: Visible for first 0.8s, then fades out as ghoul awakens */
+@keyframes humanStateFade {
+  0%, 30% {
+    opacity: 1;
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  48% {
+    opacity: 0.85;
+    filter: brightness(1.2);
+  }
+  64%, 100% {
+    opacity: 0;
+    transform: scale(0.98);
+    pointer-events: none;
+  }
+}
+
+/* Ghoul Mode: Hidden initially, shifts from dark ash into snow-white spikes */
+@keyframes ghoulStateFade {
+  0%, 30% {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(0.99);
+  }
+  65%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Hair color shift on the ghoul spikes: dark ash -> silver -> snow white */
+@keyframes ghoulHairWhiten {
+  0%, 30% {
+    fill: #1a1824;
+  }
+  45% {
+    fill: #544f68;
+  }
+  62% {
+    fill: #b2b5d0;
+  }
+  78%, 100% {
+    fill: #ffffff;
+  }
+}
+
+@keyframes ghoulHairShadeWhiten {
+  0%, 30% {
+    fill: #0c0b12;
+  }
+  45% {
+    fill: #2d293d;
+  }
+  62% {
+    fill: #787a96;
+  }
+  78%, 100% {
+    fill: #a6a9c6;
+  }
+}
+
+@keyframes ghoulHairLinesWhiten {
+  0%, 30% {
+    stroke: #0c0b12;
+  }
+  50% {
+    stroke: #423d56;
+  }
+  78%, 100% {
+    stroke: #c8cbdc;
+  }
+}
+
+/* Kakugan awakening: Blood red glow fires up */
+@keyframes kakuganAwaken {
+  0%, 32% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  52% {
+    opacity: 0.8;
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 10px #ff1744);
+  }
+  75%, 100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: drop-shadow(0 0 4px #ff1744);
+  }
+}
+
+/* Red Ghoul Aura in background */
+@keyframes auraAwaken {
+  0%, 32% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  60% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+  80%, 100% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+}
+
+/* Flash shockwave burst at peak transformation (around 1.4s) */
+@keyframes flashShockwave {
+  0%, 50% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  58% {
+    opacity: 0.9;
+    transform: scale(1.05);
+  }
+  74% {
+    opacity: 0.25;
+    transform: scale(1.18);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.25);
+  }
+}
+
+.humanState {
+  animation: humanStateFade 2.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.ghoulState {
+  animation: ghoulStateFade 2.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.ghoulHairMain {
+  animation: ghoulHairWhiten 2.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.ghoulHairShade {
+  animation: ghoulHairShadeWhiten 2.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.ghoulHairLines {
+  animation: ghoulHairLinesWhiten 2.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.kakuganEye {
+  transform-origin: 137px 103px;
+  animation: kakuganAwaken 2.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.aura {
+  pointer-events: none;
+  transform-origin: 120px 96px;
+  animation: auraAwaken 2.4s ease-out forwards;
+}
+
+.flash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    circle at 50% 42%,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 25, 60, 0.6) 35%,
+    transparent 72%
+  );
+  animation: flashShockwave 2.4s ease-out forwards;
+}
+
+/* ── IDLE ANIMATIONS (BREATHING, BLINKING, TYPING) ── */
+@keyframes breathe {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1.5px);
+  }
+}
+
+@keyframes blink {
+  0%, 94%, 100% {
+    transform: scaleY(1);
+  }
+  97% {
+    transform: scaleY(0.08);
+  }
+}
+
+@keyframes type {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes flicker {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.breathe {
+  animation: breathe 4s ease-in-out infinite;
+}
+
+/* fill-box: the origin is the eye's own box, so it closes in place */
+.blink {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: blink 4.8s infinite;
+}
+
+/* Irises track cursor */
+.look {
+  transform: translate(var(--look-x), var(--look-y));
+  transition: transform 100ms ease-out;
+}
+
+.handL,
+.handR {
+  animation: type 0.48s ease-in-out infinite;
+}
+
+.handR {
+  animation-delay: -0.24s;
+}
+
+.stage:hover .handL,
+.stage:hover .handR {
+  animation-duration: 0.22s;
+}
+
+.logo {
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 13px;
+  font-weight: 700;
+  /* the laptop is character art, so its logo stays fixed in both themes */
+  fill: #ff4458;
+  animation: flicker 3s ease-in-out infinite;
+}
+
+/* ── REPLAY BUTTON (The ONLY clickable control) ── */
+.replay {
+  position: absolute;
+  z-index: 10;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  display: inline-flex;
+  width: 2.75rem;
+  height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--ink);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease,
+    transform 150ms ease;
+}
+
+.replay:is(:hover, :focus-visible) {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-ink);
+  transform: rotate(-45deg);
+}
+
+.replay:active {
+  transform: scale(0.92);
+}
+
+/* ── Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .humanState {
+    display: none !important;
+  }
+
+  .ghoulState {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+
+  .ghoulHairMain {
+    fill: #ffffff !important;
+    animation: none !important;
+  }
+
+  .ghoulHairShade {
+    fill: #a6a9c6 !important;
+    animation: none !important;
+  }
+
+  .ghoulHairLines {
+    stroke: #c8cbdc !important;
+    animation: none !important;
+  }
+
+  .kakuganEye {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+
+  .aura {
+    opacity: 0.7 !important;
+    animation: none !important;
+  }
+
+  .flash {
+    display: none !important;
+  }
+
+  .breathe,
+  .blink,
+  .handL,
+  .handR,
+  .logo {
+    animation: none !important;
+  }
+
+  .look {
+    transform: none !important;
+  }
+}
