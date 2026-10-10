@@ -132,7 +132,17 @@ export const uiCopy = {
       week: (count: number) =>
         `${count} contribution${count === 1 ? "" : "s"} this week. The ghoul hungers for more commits.`,
       idle: "Quiet week... what's 1000 minus 7? Push something.",
-      ghoul: "The mask comes on when the build turns red.",
+      humanQuips: [
+        "Another bug... how troublesome.",
+        "One more commit. Just one more.",
+        "眠い... but the build must pass.",
+      ],
+      ghoulQuips: [
+        "Even ghouls need clean code.",
+        "404: humanity not found.",
+        "The ghoul hungers for more commits.",
+        "Production is bleeding again.",
+      ],
     },
   },
   skills: {

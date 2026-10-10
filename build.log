@@ -1,0 +1,35 @@
+
+> portofolio@0.1.0 build
+> next build
+
+▲ Next.js 16.2.3 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 20.4s
+  Running TypeScript ...
+  Finished TypeScript in 7.8s ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/10) ...
+  Generating static pages using 3 workers (2/10) 
+  Generating static pages using 3 workers (4/10) 
+  Generating static pages using 3 workers (7/10) 
+✓ Generating static pages using 3 workers (10/10) in 829ms
+  Finalizing page optimization ...
+
+Route (app)                       Revalidate  Expire
+┌ ○ /                                     1d      1y
+├ ○ /_not-found
+├ ○ /projects
+├ ● /projects/[slug]
+│ ├ /projects/Meal-App
+│ ├ /projects/AI-Sales-Generator
+│ ├ /projects/Score-Keeper
+│ └ /projects/notaku
+├ ○ /robots.txt
+└ ○ /sitemap.xml
+
+
+○  (Static)  prerendered as static content
+●  (SSG)     prerendered as static HTML (uses generateStaticParams)
+

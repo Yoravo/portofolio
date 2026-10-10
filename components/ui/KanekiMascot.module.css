@@ -57,10 +57,31 @@
   background: var(--surface);
 }
 
+.sizer,
 .bubbleHuman,
 .bubbleGhoul {
   grid-area: 1 / 1 / 2 / 2;
   display: block;
+}
+
+/* Invisible copies of every line reserve the tallest size: zero layout shift */
+.sizer {
+  visibility: hidden;
+}
+
+/* Clock for the human pool: same 12s period, offset half a cycle so its
+   animationiteration fires while the human line is hidden. */
+.tick {
+  position: absolute;
+  width: 0;
+  height: 0;
+  animation: tickAnim 12s linear -6s infinite;
+}
+
+@keyframes tickAnim {
+  to {
+    opacity: 1;
+  }
 }
 
 .bubbleHuman {
@@ -400,15 +421,6 @@
   }
 }
 
-@keyframes type {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-2px);
-  }
-}
-
 @keyframes flicker {
   0%, 100% {
     opacity: 1;
@@ -429,19 +441,130 @@
   animation: blink 4.8s infinite;
 }
 
+/* Typing: each wrist presses on its own rhythm (prime-ish durations never
+   line up), with a held pause baked into the cycle so it reads human. */
+@keyframes typeL {
+  0%, 100% { transform: translateY(0); }
+  6% { transform: translateY(1.2px); }
+  12% { transform: translateY(0); }
+  20% { transform: translateY(1px) translateX(0.6px); }
+  27% { transform: translateY(0); }
+  34% { transform: translateY(1.3px); }
+  41%, 70% { transform: translateY(-0.6px); }
+  78% { transform: translateY(1px); }
+  86% { transform: translateY(0); }
+}
+
+@keyframes typeR {
+  0%, 100% { transform: translateY(0); }
+  9% { transform: translateY(1.1px); }
+  17% { transform: translateY(0); }
+  26% { transform: translateY(1.3px) translateX(-0.5px); }
+  33%, 58% { transform: translateY(-0.5px); }
+  66% { transform: translateY(1px); }
+  74% { transform: translateY(0); }
+  82% { transform: translateY(1.2px); }
+  90% { transform: translateY(0); }
+}
+
+/* Slow posture shift: lean in, settle back */
+@keyframes postureAnim {
+  0%, 100% { transform: translateY(0); }
+  45% { transform: translateY(0.6px); }
+  60% { transform: translateY(-0.4px); }
+}
+
+.posture {
+  animation: postureAnim 9s ease-in-out infinite;
+}
+
 .handL,
 .handR {
-  animation: type 0.48s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: 70% 90%;
+}
+
+.handL {
+  animation: typeL 2.3s ease-in-out infinite;
 }
 
 .handR {
-  animation-delay: -0.24s;
+  animation: typeR 2.9s ease-in-out -0.7s infinite;
 }
 
-.stage:hover .handL,
-.stage:hover .handR {
-  animation-duration: 0.22s;
+@keyframes screenGlowAnim {
+  0%, 100% { opacity: 0.8; }
+  40% { opacity: 1; }
+  70% { opacity: 0.6; }
 }
+
+.screenGlow {
+  animation: screenGlowAnim 5s ease-in-out infinite;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   KAGUNE: hidden in human form, emerge 42-48%, active through 84%,
+   retract by 89%. Base segment and tip segment rotate on their own
+   joints with staggered timing so each limb moves independently.
+   ══════════════════════════════════════════════════════════════ */
+.kagune {
+  pointer-events: none;
+}
+
+@keyframes kgEmergeAnim {
+  0%, 41% { opacity: 0; transform: scale(0.15) rotate(18deg); }
+  47%, 84% { opacity: 1; transform: scale(1) rotate(0); }
+  89%, 100% { opacity: 0; transform: scale(0.15) rotate(18deg); }
+}
+
+.kgEmerge {
+  animation: kgEmergeAnim 12s cubic-bezier(0.5, 0, 0.2, 1) infinite;
+  filter: drop-shadow(0 0 2.5px rgba(255, 23, 68, 0.55));
+}
+
+/* Typers: upper segment dips toward keys, tip taps; occasional curl back */
+@keyframes kgTypeUpper {
+  0%, 100% { transform: rotate(0); }
+  12% { transform: rotate(4deg); }
+  22% { transform: rotate(-1deg); }
+  34% { transform: rotate(5deg); }
+  46% { transform: rotate(0); }
+  60%, 72% { transform: rotate(-14deg); }
+  84% { transform: rotate(2deg); }
+}
+
+@keyframes kgTypeTip {
+  0%, 100% { transform: rotate(0); }
+  8% { transform: rotate(12deg); }
+  14% { transform: rotate(-2deg); }
+  28% { transform: rotate(14deg); }
+  36% { transform: rotate(0); }
+  50% { transform: rotate(10deg); }
+  60%, 72% { transform: rotate(-38deg); }
+  86% { transform: rotate(8deg); }
+}
+
+.kgTypeA { animation: kgTypeUpper 3.1s ease-in-out infinite; }
+.kgTypeB { animation: kgTypeTip 1.7s ease-in-out infinite; }
+.kgTypeA2 { animation: kgTypeUpper 3.7s ease-in-out -1.3s infinite; }
+.kgTypeB2 { animation: kgTypeTip 2.1s ease-in-out -0.6s infinite; }
+
+/* Idlers: slow menacing sway overhead, tip curls and uncurls */
+@keyframes kgIdleUpper {
+  0%, 100% { transform: rotate(0); }
+  50% { transform: rotate(-7deg); }
+}
+
+@keyframes kgIdleTip {
+  0%, 100% { transform: rotate(0); }
+  35% { transform: rotate(-22deg); }
+  65% { transform: rotate(12deg); }
+}
+
+.kgIdleA { animation: kgIdleUpper 4.3s ease-in-out infinite; }
+.kgIdleB { animation: kgIdleTip 3.3s ease-in-out infinite; }
+.kgIdleA2 { animation: kgIdleUpper 5.1s ease-in-out -2s infinite; }
+.kgIdleB2 { animation: kgIdleTip 3.9s ease-in-out -1.1s infinite; }
 
 .logo {
   font-family: var(--font-jetbrains), monospace;
@@ -516,7 +639,24 @@
   .blink,
   .handL,
   .handR,
+  .posture,
+  .screenGlow,
+  .tick,
+  .kgTypeA,
+  .kgTypeB,
+  .kgTypeA2,
+  .kgTypeB2,
+  .kgIdleA,
+  .kgIdleB,
+  .kgIdleA2,
+  .kgIdleB2,
   .logo {
+    animation: none !important;
+  }
+
+  .kgEmerge {
+    opacity: 1 !important;
+    transform: none !important;
     animation: none !important;
   }
 }

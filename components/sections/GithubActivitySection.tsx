@@ -88,8 +88,8 @@ export default async function GithubActivitySection() {
           {/* Kaneki panel */}
           <div className="panel tone p-4 sm:p-6 lg:col-span-4">
             <KanekiMascot
-              human={mascotLine}
-              ghoul={copy.mascot.ghoul}
+              human={[mascotLine, ...copy.mascot.humanQuips]}
+              ghoul={copy.mascot.ghoulQuips}
               label={copy.mascot.label}
             />
           </div>

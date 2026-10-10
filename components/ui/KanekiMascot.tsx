@@ -1,6 +1,6 @@
 "use client";
 
-import { useId } from "react";
+import { useId, useState } from "react";
 import styles from "./KanekiMascot.module.css";
 
 // Vector fan art of Kaneki Ken (Tokyo Ghoul) at a programmer desk.
@@ -44,18 +44,109 @@ const GHOUL_SIDE: Lock[] = [
   [160, 80, 10, 155, 128],
 ];
 
-type Props = { human: string; ghoul: string; label: string };
+// Tapered limb along a quadratic curve: width w1 at the start, w2 at the end.
+type Pt = [number, number];
+const limb = ([x1, y1]: Pt, [cx, cy]: Pt, [x2, y2]: Pt, w1: number, w2: number) => {
+  const norm = (dx: number, dy: number): Pt => {
+    const l = Math.hypot(dx, dy) || 1;
+    return [-dy / l, dx / l];
+  };
+  const n1 = norm(cx - x1, cy - y1);
+  const n2 = norm(x2 - cx, y2 - cy);
+  const nc = norm(x2 - x1, y2 - y1);
+  const wc = (w1 + w2) / 2;
+  const f = (n: number) => n.toFixed(1);
+  return (
+    `M${f(x1 + n1[0] * w1)} ${f(y1 + n1[1] * w1)} ` +
+    `Q${f(cx + nc[0] * wc)} ${f(cy + nc[1] * wc)} ${f(x2 + n2[0] * w2)} ${f(y2 + n2[1] * w2)} ` +
+    `L${f(x2 - n2[0] * w2)} ${f(y2 - n2[1] * w2)} ` +
+    `Q${f(cx - nc[0] * wc)} ${f(cy - nc[1] * wc)} ${f(x1 - n1[0] * w1)} ${f(y1 - n1[1] * w1)} Z`
+  );
+};
+
+// A kagune tendril: base, elbow joint and tip, each segment bent by its control point.
+// Defined for the left side; the right side is the same tendril mirrored.
+type Tendril = { base: Pt; c1: Pt; joint: Pt; c2: Pt; tip: Pt; w: [number, number, number] };
+const TYPER: Tendril = { base: [86, 186], c1: [58, 158], joint: [36, 136], c2: [40, 176], tip: [64, 206], w: [5, 3.4, 1] };
+const IDLER: Tendril = { base: [82, 184], c1: [50, 140], joint: [30, 100], c2: [14, 74], tip: [28, 52], w: [4.4, 3, 0.8] };
+
+type Props = { human: string[]; ghoul: string[]; label: string };
 
 export default function KanekiMascot({ human, ghoul, label }: Props) {
   const uid = useId();
   const id = (name: string) => `${uid}-${name}`;
+  // Lines advance on CSS animationiteration events, so the text only swaps
+  // while its slot is invisible and stays in sync with the 12s loop.
+  const [h, setH] = useState(0);
+  const [g, setG] = useState(0);
+
+  const kagune = (t: Tendril, a: string, b: string, mirror: boolean) => (
+    <g transform={mirror ? "translate(240 0) scale(-1 1)" : undefined}>
+      <g className={styles.kgEmerge} style={{ transformOrigin: `${t.base[0]}px ${t.base[1]}px` }}>
+        <ellipse cx={t.base[0]} cy={t.base[1] + 1} rx="6" ry="3" fill="#2a0008" />
+        <g className={a} style={{ transformOrigin: `${t.base[0]}px ${t.base[1]}px` }}>
+          <path d={limb(t.base, t.c1, t.joint, t.w[0], t.w[1])} fill={`url(#${id("kagune")})`} />
+          <path
+            d={`M${t.base.join(" ")} Q${t.c1.join(" ")} ${t.joint.join(" ")}`}
+            stroke="#ff4a64"
+            strokeWidth="0.8"
+            fill="none"
+            opacity="0.55"
+          />
+          <g className={b} style={{ transformOrigin: `${t.joint[0]}px ${t.joint[1]}px` }}>
+            <path d={limb(t.joint, t.c2, t.tip, t.w[1], t.w[2])} fill={`url(#${id("kagune")})`} />
+            <path
+              d={`M${t.joint.join(" ")} Q${t.c2.join(" ")} ${t.tip.join(" ")}`}
+              stroke="#ff4a64"
+              strokeWidth="0.6"
+              fill="none"
+              opacity="0.55"
+            />
+            <circle cx={t.tip[0]} cy={t.tip[1]} r="1.7" fill="#ff5a72" filter={`url(#${id("glow")})`} />
+          </g>
+          <circle cx={t.joint[0]} cy={t.joint[1]} r={t.w[1] + 0.6} fill="#7a0016" />
+        </g>
+      </g>
+    </g>
+  );
+
+  const hand = (cls: string, mirror: boolean) => (
+    <g transform={mirror ? "translate(240 0) scale(-1 1)" : undefined}>
+      <g className={cls}>
+        <path fill="#111018" d="M8 250 C16 236 40 220 74 210 L90 206 L98 216 C74 224 52 236 44 250 Z" />
+        <path d="M76 212 L92 208" stroke="#242232" strokeWidth="1.5" strokeLinecap="round" />
+        <path
+          fill="#f1d5cd"
+          d="M86 204 C90 199 100 198 106 202 C108 205 106 210 100 211 L88 212 C84 210 84 207 86 204 Z"
+        />
+        <path d="M95 201 L95 205 M99 201 L99 205 M103 202 L103 205.5" stroke="#d9b1a8" strokeWidth="0.9" strokeLinecap="round" />
+      </g>
+    </g>
+  );
 
   return (
     <div className={styles.root}>
-      {/* Speech bubble: both lines share one grid cell and cross-fade with the loop */}
+      {/* Speech bubble: every line sits in one grid cell (hidden sizers fix the
+          size to the longest line), two visible slots cross-fade with the loop */}
       <p className={styles.bubble}>
-        <span className={styles.bubbleHuman}>{human}</span>
-        <span className={styles.bubbleGhoul}>{ghoul}</span>
+        {[...human, ...ghoul].map((line) => (
+          <span key={line} className={styles.sizer} aria-hidden="true">
+            {line}
+          </span>
+        ))}
+        <span className={styles.bubbleHuman}>{human[h]}</span>
+        <span
+          className={styles.bubbleGhoul}
+          onAnimationIteration={() => setG((n) => (n + 1) % ghoul.length)}
+        >
+          {ghoul[g]}
+        </span>
+        {/* Half-cycle offset tick: fires while the human line is hidden */}
+        <span
+          className={styles.tick}
+          aria-hidden="true"
+          onAnimationIteration={() => setH((n) => (n + 1) % human.length)}
+        />
       </p>
 
       {/* Portrait Stage */}
@@ -86,6 +177,11 @@ export default function KanekiMascot({ human, ghoul, label }: Props) {
               <stop offset="55%" stopColor="#2c2e3a" />
               <stop offset="100%" stopColor="#181a22" />
             </linearGradient>
+            <linearGradient id={id("kagune")} x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#4a0010" />
+              <stop offset="55%" stopColor="#b3001f" />
+              <stop offset="100%" stopColor="#ff2a4a" />
+            </linearGradient>
             <radialGradient id={id("aura")} cx="120" cy="96" r="112" gradientUnits="userSpaceOnUse">
               <stop offset="0%" stopColor="#ff1744" stopOpacity="0.45" />
               <stop offset="65%" stopColor="#ff1744" stopOpacity="0.14" />
@@ -111,6 +207,15 @@ export default function KanekiMascot({ human, ghoul, label }: Props) {
 
           {/* Red Ghoul Aura (Pulses automatically during Ghoul phase) */}
           <circle cx="120" cy="96" r="112" fill={`url(#${id("aura")})`} className={styles.aura} />
+
+          {/* ── KAGUNE: rinkaku-style tendrils from behind the back, ghoul phase only.
+              Two typers tap the keyboard, two idlers sway and curl overhead. ── */}
+          <g className={styles.kagune} aria-hidden="true">
+            {kagune(IDLER, styles.kgIdleA, styles.kgIdleB, false)}
+            {kagune(IDLER, styles.kgIdleA2, styles.kgIdleB2, true)}
+            {kagune(TYPER, styles.kgTypeA, styles.kgTypeB, false)}
+            {kagune(TYPER, styles.kgTypeA2, styles.kgTypeB2, true)}
+          </g>
 
           {/* Idle breathing motion container */}
           <g className={styles.breathe}>
@@ -426,25 +531,34 @@ export default function KanekiMascot({ human, ghoul, label }: Props) {
             </g>
           </g>
 
-          {/* ── SLEEVES & HANDS TYPING AT LAPTOP ── */}
-          <g className={styles.handL}>
-            <path fill="#111018" d="M14 250 C16 232 30 220 48 220 L64 228 L62 250 Z" />
-            <ellipse cx="60" cy="226" rx="11" ry="6.5" fill="#f1d5cd" transform="rotate(-12 60 226)" />
-            <path d="M64 222 L70 220 M65 226 L71 225 M64 230 L69 230" stroke="#d9b1a8" strokeWidth="1.2" strokeLinecap="round" />
-          </g>
-          <g className={styles.handR}>
-            <path fill="#111018" d="M226 250 C224 232 210 220 192 220 L176 228 L178 250 Z" />
-            <ellipse cx="180" cy="226" rx="11" ry="6.5" fill="#f1d5cd" transform="rotate(12 180 226)" />
-            <path d="M176 222 L170 220 M175 226 L169 225 M176 230 L171 230" stroke="#d9b1a8" strokeWidth="1.2" strokeLinecap="round" />
+          {/* ── LAPTOP: base deck with keyboard under the lid, glowing code on the back of the lid ── */}
+          <g className={styles.posture}>
+            <path fill="#2c2e3a" d="M40 222 L200 222 L214 238 L26 238 Z" />
+            <g fill="#3c3f4d">
+              {Array.from({ length: 9 }, (_, i) => (
+                <rect key={i} x={46 + i * 16.5} y="225" width="13" height="3" rx="0.8" />
+              ))}
+              {Array.from({ length: 9 }, (_, i) => (
+                <rect key={i} x={42 + i * 17.5} y="230" width="14" height="3" rx="0.8" />
+              ))}
+            </g>
+            <rect x="96" y="234" width="48" height="2.5" rx="1" fill="#3c3f4d" />
+
+            {/* Hands rest on the deck; wrists alternate presses, fingers tap independently */}
+            {hand(styles.handL, false)}
+            {hand(styles.handR, true)}
           </g>
 
-          {/* ── SPACE-GREY LAPTOP LID WITH NEON CODE TAG < / > ── */}
-          <path fill={`url(#${id("laptopMetal")})`} d="M54 250 L62 208 Q120 203 178 208 L186 250 Z" />
-          <path fill="none" stroke="#7a7f93" strokeWidth="1.2" d="M62 208 Q120 203 178 208" />
-          <path fill="#ffffff" opacity="0.07" d="M70 210 L96 207 L74 250 L58 250 Z" />
+          {/* Lid: thin aluminium back with a soft screen glow spilling on the hands */}
+          <path fill={`url(#${id("laptopMetal")})`} d="M62 250 L68 214 Q120 210 172 214 L178 250 Z" />
+          <path fill="none" stroke="#7a7f93" strokeWidth="1.2" d="M68 214 Q120 210 172 214" />
+          <path fill="#ffffff" opacity="0.07" d="M74 216 L98 213 L82 250 L66 250 Z" />
+          <g className={styles.screenGlow}>
+            <path d="M70 214 Q120 208 170 214" stroke="#7fd4ff" strokeWidth="2.5" fill="none" opacity="0.35" />
+          </g>
           <text
             x="120"
-            y="235"
+            y="238"
             textAnchor="middle"
             className={styles.logo}
             filter={`url(#${id("glow")})`}
