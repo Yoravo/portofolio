@@ -1,16 +1,15 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
-import { RotateCcw } from "lucide-react";
+import { useId } from "react";
 import styles from "./KanekiMascot.module.css";
 
 // Vector fan art of Kaneki Ken (Tokyo Ghoul) at a programmer desk.
-// Authentic anime design matching user references:
-// - Human Mode (Image #8): Neat black hair, iconic medical eyepatch over left eye, gentle right eye, soft smile.
-// - Ghoul Mode (Image #7): Wild white spiky hair with layered fringe, Kakugan red-on-black eye with spider veins, wide intense stare, defiant smirk with teeth.
-// BY DEFAULT: Plays the transformation animation from Human to Ghoul.
-// HAIR IS NOT CLICKABLE: All hair elements have pointer-events: none !important.
-// Replay button restarts the transformation and cycles dialogue.
+// Authentic anime design:
+// - Human Mode (Anteiku student): Neat black hair, iconic medical eyepatch over left eye, gentle right eye, soft smile.
+// - Ghoul Mode (Awakened): Wild white spiky hair, one recognizable red kakugan eye with dark sclera,
+//   and Kaneki's iconic black gimp mask with exposed teeth, zipper, and neck bolts.
+// - Seamless, continuously looping automatic CSS transformation between Human and Ghoul forms.
+// - No manual replay button; hair and character have pointer-events: none !important.
 
 const FACE_PATH =
   "M82 78 C82 46 98 32 120 32 C142 32 158 46 158 78 L158 98 C158 116 152 128 143 137 L127 148 Q120 153 113 148 L97 137 C88 128 82 116 82 98 Z";
@@ -27,8 +26,7 @@ const lockPath = ([x, y, w, tx, ty]: Lock) => {
 const lockLine = ([x, y, , tx, ty]: Lock) =>
   `M${x} ${y + 3} Q${x + (tx - x) * 0.4} ${(y + ty) / 2} ${x + (tx - x) * 0.75} ${y + (ty - y) * 0.75}`;
 
-// Ghoul bangs stop at the brow so both eyes stay readable; one lock drops
-// between the eyes, and the side locks frame the cheeks.
+// Ghoul bangs frame the eyes while keeping the kakugan readable.
 const GHOUL_BANGS: Lock[] = [
   [86, 56, 12, 84, 95],
   [96, 48, 12, 93, 97],
@@ -46,58 +44,23 @@ const GHOUL_SIDE: Lock[] = [
   [160, 80, 10, 155, 128],
 ];
 
-type Props = { lines: string[]; label: string; replayLabel: string };
+type Props = { human: string; ghoul: string; label: string };
 
-export default function KanekiMascot({ lines, label, replayLabel }: Props) {
-  const rootRef = useRef<HTMLDivElement>(null);
-  const svgRef = useRef<SVGSVGElement>(null);
-  const [animKey, setAnimKey] = useState(0);
-  const [line, setLine] = useState(0);
+export default function KanekiMascot({ human, ghoul, label }: Props) {
   const uid = useId();
   const id = (name: string) => `${uid}-${name}`;
 
-  // Eyes follow pointer on fine-cursor devices (desktop)
-  useEffect(() => {
-    const svg = svgRef.current;
-    const media = (q: string) => window.matchMedia(q).matches;
-    if (!svg || !media("(pointer: fine)") || media("(prefers-reduced-motion: reduce)")) return;
-    let frame = 0;
-    const onMove = (e: PointerEvent) => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        const r = svg.getBoundingClientRect();
-        const dx = e.clientX - (r.left + r.width / 2);
-        const dy = e.clientY - (r.top + r.height * 0.42);
-        const d = Math.hypot(dx, dy) || 1;
-        const k = Math.min(d / 280, 1) * 2;
-        svg.style.setProperty("--look-x", `${((dx / d) * k).toFixed(2)}px`);
-        svg.style.setProperty("--look-y", `${((dy / d) * k * 0.6).toFixed(2)}px`);
-      });
-    };
-    window.addEventListener("pointermove", onMove, { passive: true });
-    return () => {
-      window.removeEventListener("pointermove", onMove);
-      cancelAnimationFrame(frame);
-    };
-  }, []);
-
-  const handleReplay = () => {
-    setAnimKey((k) => k + 1);
-    setLine((n) => (n + 1) % lines.length);
-  };
-
   return (
-    <div ref={rootRef} className={styles.root}>
-      {/* Speech Bubble directly above Kaneki's head */}
-      <p className={styles.bubble} aria-live="polite">
-        {lines[line]}
+    <div className={styles.root}>
+      {/* Speech bubble: both lines share one grid cell and cross-fade with the loop */}
+      <p className={styles.bubble}>
+        <span className={styles.bubbleHuman}>{human}</span>
+        <span className={styles.bubbleGhoul}>{ghoul}</span>
       </p>
 
       {/* Portrait Stage */}
       <div className={styles.stage}>
         <svg
-          key={`svg-${animKey}`}
-          ref={svgRef}
           viewBox="0 0 240 250"
           role="img"
           aria-label={label}
@@ -113,14 +76,19 @@ export default function KanekiMascot({ lines, label, replayLabel }: Props) {
               <stop offset="0%" stopColor="#e5beb4" />
               <stop offset="100%" stopColor="#f7dad1" />
             </linearGradient>
+            <linearGradient id={id("maskLeather")} x1="70" y1="70" x2="170" y2="180" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#252433" />
+              <stop offset="50%" stopColor="#181724" />
+              <stop offset="100%" stopColor="#0e0d16" />
+            </linearGradient>
             <linearGradient id={id("laptopMetal")} x1="50" y1="204" x2="190" y2="250" gradientUnits="userSpaceOnUse">
               <stop offset="0%" stopColor="#454856" />
               <stop offset="55%" stopColor="#2c2e3a" />
               <stop offset="100%" stopColor="#181a22" />
             </linearGradient>
             <radialGradient id={id("aura")} cx="120" cy="96" r="112" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#ff1744" stopOpacity="0.4" />
-              <stop offset="65%" stopColor="#ff1744" stopOpacity="0.12" />
+              <stop offset="0%" stopColor="#ff1744" stopOpacity="0.45" />
+              <stop offset="65%" stopColor="#ff1744" stopOpacity="0.14" />
               <stop offset="100%" stopColor="#ff1744" stopOpacity="0" />
             </radialGradient>
             <clipPath id={id("faceClip")}>
@@ -141,12 +109,28 @@ export default function KanekiMascot({ lines, label, replayLabel }: Props) {
             </filter>
           </defs>
 
-          {/* Red Ghoul Aura (Awakens during transformation) */}
+          {/* Red Ghoul Aura (Pulses automatically during Ghoul phase) */}
           <circle cx="120" cy="96" r="112" fill={`url(#${id("aura")})`} className={styles.aura} />
 
           {/* Idle breathing motion container */}
           <g className={styles.breathe}>
-            {/* ── BASE SHOULDERS, HIGH BLACK TURTLENECK COLLAR ── */}
+            {/* Back hair sits behind the head so it never paints over the face */}
+            <g className={`${styles.humanState} ${styles.faceLayer}`}>
+              <path
+                d="M74 112 C68 62 86 24 120 24 C154 24 172 62 166 112 L164 128 C160 134 154 130 152 122 L150 108 L90 108 L88 122 C86 130 80 134 76 128 Z"
+                fill="#15141e"
+              />
+            </g>
+            <g className={`${styles.ghoulState} ${styles.faceLayer}`}>
+              <path
+                className={styles.ghoulHairShade}
+                d="M58 116 C50 68 76 16 120 16 C164 16 190 68 182 116
+                   L186 150 L174 135 L170 160 L156 142 L150 158 L138 145
+                   L96 145 L88 158 L82 142 L68 160 L64 135 L56 150 Z"
+              />
+            </g>
+
+            {/* ── BASE SHOULDERS & HIGH BLACK TURTLENECK COLLAR ── */}
             <g className={styles.character}>
               {/* Shoulders & Cloak */}
               <path
@@ -160,7 +144,7 @@ export default function KanekiMascot({ lines, label, replayLabel }: Props) {
               <path d="M105 125 L105 174 Q120 182 135 174 L135 125 Z" fill={`url(#${id("neckShade")})`} />
               <ellipse cx="120" cy="146" rx="16" ry="9" fill="#d8a69c" />
 
-              {/* High Ragged Tattered Turtleneck Collar (Iconic Tokyo Ghoul look in Image #7) */}
+              {/* High Ragged Tattered Turtleneck Collar */}
               <path
                 d="M90 164 C100 178 140 178 150 164 L162 186 L152 182 L154 202 L142 190 L136 206 L128 190 L120 208 L112 190 L104 204 L100 186 L88 196 L90 182 Z"
                 fill="#191824"
@@ -177,7 +161,7 @@ export default function KanekiMascot({ lines, label, replayLabel }: Props) {
               <path d="M82 98 Q79 104 82 110" stroke="#cf9c92" strokeWidth="1.2" fill="none" strokeLinecap="round" />
               <path d="M158 98 Q161 104 158 110" stroke="#cf9c92" strokeWidth="1.2" fill="none" strokeLinecap="round" />
 
-              {/* Solid Anime Face Canvas (Zero bald spots) */}
+              {/* Anime Face Canvas */}
               <path d={FACE_PATH} fill={`url(#${id("skin")})`} />
 
               {/* Forehead & Cheek Cel-Shading */}
@@ -192,41 +176,35 @@ export default function KanekiMascot({ lines, label, replayLabel }: Props) {
             </g>
 
             {/* ══════════════════════════════════════════════════════════
-               1. HUMAN MODE (IMAGE #8: Anteiku Student Look)
-               Visible initially, fades out when ghoul awakens
+               1. HUMAN MODE (Anteiku Student Look)
+               Neat black hair, medical eyepatch over left eye, gentle smile.
                ══════════════════════════════════════════════════════════ */}
             <g className={`${styles.humanState} ${styles.faceLayer}`}>
-              {/* Back Hair Silhouette (Neat black bob) */}
-              <path
-                d="M74 112 C68 62 86 24 120 24 C154 24 172 62 166 112 L164 128 C160 134 154 130 152 122 L150 108 L90 108 L88 122 C86 130 80 134 76 128 Z"
-                fill="#15141e"
-              />
-
               {/* Gentle Eyebrows */}
               <path d="M94 92 Q103 87 113 90" stroke="#161420" strokeWidth="2.2" strokeLinecap="round" fill="none" />
               <path d="M127 90 Q137 87 146 92" stroke="#161420" strokeWidth="2.2" strokeLinecap="round" fill="none" />
 
-              {/* Right Eye (Viewer's left: Warm, friendly anime eye with large pupil) */}
-              <path d={EYE_L_PATH} fill="#f4f5f9" />
-              <g clipPath={`url(#${id("eyeLClip")})`}>
-                <g className={styles.look}>
+              {/* Right Eye (Viewer's left: Warm, gentle anime eye with soft reflections) */}
+              <g className={styles.blink}>
+                <path d={EYE_L_PATH} fill="#f4f5f9" />
+                <g clipPath={`url(#${id("eyeLClip")})`}>
                   <circle cx="103.5" cy="102" r="5.2" fill="#525464" />
                   <circle cx="103.5" cy="102" r="3.6" fill="#323340" />
                   <circle cx="103.5" cy="102" r="2" fill="#15161c" />
                   <circle cx="102" cy="100.5" r="1.3" fill="#ffffff" />
                   <circle cx="105.5" cy="103.5" r="0.8" fill="#ffffff" />
                 </g>
+                <path d="M91 101 Q103 94 116 100" stroke="#181622" strokeWidth="2.4" strokeLinecap="round" fill="none" />
               </g>
-              <path d="M91 101 Q103 94 116 100" stroke="#181622" strokeWidth="2.4" strokeLinecap="round" fill="none" />
 
-              {/* Left Eye: Iconic Medical Gauze Eyepatch (Image #8) */}
-              <g id="humanEyepatch">
-                {/* Eyepatch Straps */}
+              {/* Left Eye: Iconic Medical Gauze Eyepatch */}
+              <g>
+                {/* Straps */}
                 <path d="M148 95 L160 88 L170 84" stroke="#d5d8e6" strokeWidth="1.8" strokeLinecap="round" fill="none" />
                 <path d="M125 106 L118 112 L84 105" stroke="#d5d8e6" strokeWidth="1.8" strokeLinecap="round" fill="none" />
-                {/* White Gauze Patch */}
+                {/* Gauze Patch */}
                 <rect x="125" y="93" width="25" height="21" rx="3.5" fill="#fcfdfe" stroke="#b8bccd" strokeWidth="1.1" />
-                {/* Subtle pinprick stitch pattern */}
+                {/* Stitch pattern */}
                 <g fill="#9ea3ba" opacity="0.65">
                   <circle cx="131" cy="99" r="0.7" /><circle cx="137.5" cy="99" r="0.7" /><circle cx="144" cy="99" r="0.7" />
                   <circle cx="131" cy="103.5" r="0.7" /><circle cx="137.5" cy="103.5" r="0.7" /><circle cx="144" cy="103.5" r="0.7" />
@@ -234,15 +212,21 @@ export default function KanekiMascot({ lines, label, replayLabel }: Props) {
                 </g>
               </g>
 
+              {/* Anticipation: veins creep out from under the eyepatch */}
+              <g className={styles.veinCreep} fill="none" stroke="#e01235" strokeLinecap="round">
+                <path pathLength={1} d="M150 104 Q157 108 162 114 L167 120" strokeWidth="1.2" />
+                <path pathLength={1} d="M150 108 L158 109 L165 112" strokeWidth="0.9" />
+                <path pathLength={1} d="M142 114 Q145 119 147 124" strokeWidth="1" />
+              </g>
+
               {/* Nose: small anime dot */}
               <path d="M120 116 L121.5 120 L118.5 121" stroke="#c9958c" strokeWidth="1.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
 
-              {/* Gentle, innocent smile (Image #8) */}
+              {/* Gentle, innocent smile */}
               <path d="M113 134 Q120 138 127 134" stroke="#945f65" strokeWidth="1.6" strokeLinecap="round" fill="none" />
               <path d="M118 140 Q120 141 122 140" stroke="#d8a8a2" strokeWidth="1" strokeLinecap="round" fill="none" />
 
-              {/* Human Black Hair (Solid, rounded neat bowl-cut from Image #8) */}
-              {/* Strictly not clickable */}
+              {/* Human Black Hair (Solid, rounded neat bowl-cut) */}
               <g className={styles.hairGroup}>
                 <path
                   d="M76 80
@@ -260,7 +244,7 @@ export default function KanekiMascot({ lines, label, replayLabel }: Props) {
                      Z"
                   fill="#181622"
                 />
-                {/* Soft blue-grey sheen highlight across crown */}
+                {/* Sheen highlight across crown */}
                 <path
                   d="M88 52 Q120 38 152 52 L150 56 Q120 42 90 56 Z"
                   fill="#323044"
@@ -270,33 +254,105 @@ export default function KanekiMascot({ lines, label, replayLabel }: Props) {
             </g>
 
             {/* ══════════════════════════════════════════════════════════
-               2. GHOUL MODE (IMAGE #7: Climax Jason Fight / Unravel Look)
-               Awakens with keyframes: white spiky hair, Kakugan, confident smirk
+               2. GHOUL MODE (Awakened Tokyo Ghoul Mask & White Hair)
+               Iconic black leather mask with zipper and teeth, glowing Kakugan, white spikes.
                ══════════════════════════════════════════════════════════ */}
             <g className={`${styles.ghoulState} ${styles.faceLayer}`}>
-              {/* Back Hair Spikes (Flaring out messily like Image #7) */}
-              <path
-                className={styles.ghoulHairShade}
-                d="M58 116 C50 68 76 16 120 16 C164 16 190 68 182 116
-                   L186 150 L174 135 L170 160 L156 142 L150 158 L138 145
-                   L96 145 L88 158 L82 142 L68 160 L64 135 L56 150 Z"
-              />
+              {/* Aggressive angled left brow (above Kakugan) */}
+              <path d="M126 91 Q138 85 150 91" stroke="#14111c" strokeWidth="2.5" strokeLinecap="round" fill="none" />
 
-              {/* Aggressive, angled eyebrows (Image #7) */}
-              <path d="M92 94 Q103 88 114 93" stroke="#15121c" strokeWidth="2.4" strokeLinecap="round" fill="none" />
-              <path d="M126 93 Q137 88 148 94" stroke="#15121c" strokeWidth="2.4" strokeLinecap="round" fill="none" />
+              {/* ── KANEKI'S ICONIC BLACK LEATHER GHOUL MASK ── */}
+              <g className={styles.mask}>
+                {/* Neck Guard (Leather collar with stitching) */}
+                <path d="M96 138 L90 178 L150 178 L144 138 Q120 150 96 138 Z" fill={`url(#${id("maskLeather")})`} />
 
-              {/* Right Eye (Viewer's left: Intense, wide, slightly crazed stare with small pupil) */}
-              <g className={styles.blink}>
-                <path d={EYE_L_PATH} fill="#ffffff" />
-                <g clipPath={`url(#${id("eyeLClip")})`}>
-                  <g className={styles.look}>
-                    <circle cx="103.5" cy="102" r="3.4" fill="#181a24" />
-                    <circle cx="102.3" cy="101" r="1.1" fill="#ffffff" />
-                  </g>
+                {/* Mask Ear/Head Straps */}
+                <path d="M82 112 L66 100" stroke="#161520" strokeWidth="6" strokeLinecap="round" />
+                <path d="M158 112 L174 100" stroke="#161520" strokeWidth="6" strokeLinecap="round" />
+
+                {/* Main Lower Mask (Covers nose, cheeks, jaw, and chin) */}
+                <path
+                  d="M80 102
+                     Q100 114 120 106
+                     Q140 114 160 102
+                     L158 122 C154 134 148 141 143 138 L127 150 Q120 154 113 150 L97 138 C88 128 82 116 82 102 Z"
+                  fill={`url(#${id("maskLeather")})`}
+                  stroke="#0b0a12"
+                  strokeWidth="1.5"
+                />
+
+                {/* Right Eye Leather Patch & Buckle Straps (Viewer's left: covers the human eye) */}
+                <path
+                  d="M82 104 L82 82 C82 74 95 70 115 76 C120 83 120 98 115 106 C99 114 82 104 82 104 Z"
+                  fill={`url(#${id("maskLeather")})`}
+                  stroke="#0b0a12"
+                  strokeWidth="1.4"
+                />
+                <path d="M108 75 L132 58" stroke="#161520" strokeWidth="4.5" strokeLinecap="round" />
+                <path d="M84 94 L68 90" stroke="#161520" strokeWidth="4" strokeLinecap="round" />
+                {/* Strap Rivet */}
+                <circle cx="108" cy="76" r="2" fill="#757888" />
+                <circle cx="108" cy="76" r="1" fill="#424555" />
+
+                {/* Defined Nose Contour Bridge on Leather */}
+                <path d="M120 106 L121.5 118 L118.5 119" stroke="#363445" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+
+                {/* ── THE ICONIC ZIPPER MOUTH WITH TEETH ── */}
+                <g className={styles.zipperMouth}>
+                  {/* Dark Red Throat Opening inside zipper */}
+                  <path
+                    d="M102 127 C112 121 128 121 138 127 C128 140 112 140 102 127 Z"
+                    fill="#4a040e"
+                    stroke="#1c1926"
+                    strokeWidth="1.4"
+                  />
+
+                  {/* Sharp Grinning Teeth */}
+                  <path
+                    d="M105 127 L107 132 L110 126 L113 133 L116 126 L120 134 L124 126 L127 133 L130 126 L133 132 L135 127"
+                    fill="none"
+                    stroke="#ffffff"
+                    strokeWidth="1.5"
+                    strokeLinejoin="miter"
+                  />
+                  <path
+                    d="M106 137 L109 133 L112 138 L115 133 L119 138 L123 133 L126 138 L129 133 L132 138"
+                    fill="none"
+                    stroke="#f0f1f5"
+                    strokeWidth="1.2"
+                    strokeLinejoin="miter"
+                  />
+
+                  {/* Metallic Zipper Teeth Tracks on top and bottom lip */}
+                  <path
+                    d="M98 127 C112 119 128 119 142 127"
+                    stroke="#989cae"
+                    strokeWidth="2.2"
+                    strokeDasharray="1.5 2.2"
+                    fill="none"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M100 127 C112 142 128 142 140 127"
+                    stroke="#989cae"
+                    strokeWidth="2.2"
+                    strokeDasharray="1.5 2.2"
+                    fill="none"
+                    strokeLinecap="round"
+                  />
+
+                  {/* Silver Zipper Pull Slider at left corner */}
+                  <rect x="94" y="123" width="5" height="8" rx="1.5" fill="#a4a7b8" />
+                  <circle cx="96.5" cy="132" r="2.5" fill="none" stroke="#a4a7b8" strokeWidth="1.4" />
                 </g>
-                <path d="M91 101 Q103 97 115 101" stroke="#3d3848" strokeWidth="2.5" strokeLinecap="round" fill="none" />
-                <path d="M96 109 Q103 112 111 108" stroke="#a07a72" strokeWidth="0.9" fill="none" strokeLinecap="round" />
+
+                {/* Metallic Frankenstein Bolts on Neck Collar */}
+                {/* Left Bolt */}
+                <rect x="94" y="156" width="8" height="6" rx="1" fill="#757888" transform="rotate(-15 98 159)" />
+                <rect x="92" y="157" width="3" height="4" fill="#a6aab8" transform="rotate(-15 93 159)" />
+                {/* Right Bolt */}
+                <rect x="138" y="156" width="8" height="6" rx="1" fill="#757888" transform="rotate(15 142 159)" />
+                <rect x="145" y="157" width="3" height="4" fill="#a6aab8" transform="rotate(15 146 159)" />
               </g>
 
               {/* Left Eye: KAKUGAN! (Jet-black sclera + glowing crimson iris + spider veins) */}
@@ -304,50 +360,27 @@ export default function KanekiMascot({ lines, label, replayLabel }: Props) {
                 {/* Black Sclera */}
                 <path d={EYE_R_PATH} fill="#0d050c" />
                 <g clipPath={`url(#${id("eyeRClip")})`}>
-                  <g className={styles.look}>
-                    {/* Glowing crimson iris & rings */}
-                    <circle cx="137" cy="102" r="6" fill="#ff1744" filter={`url(#${id("glow")})`} />
-                    <circle cx="137" cy="102" r="4.5" fill="#d90429" />
-                    <circle cx="137" cy="102" r="2.8" fill="#800010" />
-                    <circle cx="135.5" cy="100.8" r="1.3" fill="#ffffff" />
-                  </g>
+                  {/* Glowing crimson iris & rings */}
+                  <circle cx="137" cy="102" r="6.2" fill="#ff1744" filter={`url(#${id("glow")})`} />
+                  <circle cx="137" cy="102" r="4.6" fill="#d90429" />
+                  <circle cx="137" cy="102" r="2.8" fill="#800010" />
+                  <circle cx="135.5" cy="100.8" r="1.3" fill="#ffffff" />
                 </g>
                 {/* Lash line */}
                 <path d="M124 100 Q137 94 150 102" stroke="#15050f" strokeWidth="2.6" strokeLinecap="round" fill="none" />
               </g>
 
-              {/* Red Spider-Veins crawling out from Kakugan onto cheek and temple (Image #7) */}
-              <g fill="none" stroke="#e01235" strokeLinecap="round">
+              {/* Red Spider-Veins crawling out from Kakugan onto cheek and temple */}
+              <g className={styles.veinPulse} fill="none" stroke="#e01235" strokeLinecap="round">
                 <path d="M148 102 Q156 107 162 114 L168 120" strokeWidth="1.3" />
                 <path d="M154 107 L163 106 L170 108" strokeWidth="1" />
                 <path d="M142 108 Q146 116 148 124" strokeWidth="1.1" />
                 <path d="M144 116 L141 122" strokeWidth="0.8" />
               </g>
 
-              {/* Scratches & Battle Scuffs on Cheek (Image #7) */}
-              <g stroke="#9e3040" strokeWidth="1.1" strokeLinecap="round">
-                <path d="M143 113 L147 111" />
-                <path d="M145 116 L150 114" />
-                <path d="M144 119 L148 118" />
-              </g>
-
-              {/* Defined Anime Nose Bridge with Cel-Shadow */}
-              <path d="M120 108 L121.5 120 L118.5 121" stroke="#c9958c" strokeWidth="1.3" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-              <polygon points="121.5,112 125,120 121.5,120" fill="#d8a8a0" opacity="0.6" />
-
-              {/* The Iconic Ghoul Smirk with Teeth (Image #7) */}
-              <path d="M111 130 Q120 127 131 128" stroke="#2a1622" strokeWidth="1.8" strokeLinecap="round" fill="none" />
-              <path d="M111 130 Q120 137 131 128" stroke="#2a1622" strokeWidth="1.8" strokeLinecap="round" fill="none" />
-              {/* White teeth line visible in smirk */}
-              <path d="M112 130 Q120 128 130 129 Q120 136 112 130 Z" fill="#ffffff" />
-              <path d="M112 130 L130 129" stroke="#903444" strokeWidth="0.7" fill="none" />
-
-              {/* ════════════════════════════════════════════════════════
-                 GHOUL WHITE HAIR (VOLUMINOUS, MESSY SPIKES FROM IMAGE #7)
-                 Strictly NOT clickable (pointer-events: none !important)
-                 ════════════════════════════════════════════════════════ */}
+              {/* ── GHOUL WHITE HAIR (Voluminous, layered anime spikes) ── */}
               <g className={styles.hairGroup}>
-                {/* Layer 1: Cel-Shaded Lavender-Grey Underlayer (Creates authentic 3D anime depth) */}
+                {/* Layer 1: Cel-Shaded Lavender-Grey Underlayer */}
                 <path
                   className={styles.ghoulHairShade}
                   d="M62 98 C54 50 78 12 120 12 C162 12 186 50 178 98
@@ -358,7 +391,7 @@ export default function KanekiMascot({ lines, label, replayLabel }: Props) {
                      M140 42 Q152 20 160 24 Q154 34 150 44 Z"
                 />
 
-                {/* Layer 2: Main Snow-White Hair Body & Messy Anime Tufts (Image #7) */}
+                {/* Layer 2: Main Snow-White Hair Body & Tufts */}
                 <path
                   className={styles.ghoulHairMain}
                   d="M66 100 C58 52 82 14 120 14 C158 14 182 52 174 100
@@ -369,12 +402,12 @@ export default function KanekiMascot({ lines, label, replayLabel }: Props) {
                      M138 46 Q150 22 156 26 Q152 36 148 48 Z"
                 />
 
-                {/* Layer 3: Layered Anime Bangs & Face-Framing Clumps (Image #7) */}
+                {/* Layer 3: Layered Bangs Falling Over Mask & Forehead */}
                 {[...GHOUL_SIDE, ...GHOUL_BANGS].map((s) => (
                   <path key={s.join()} className={styles.ghoulHairMain} d={lockPath(s)} />
                 ))}
 
-                {/* Delicate manga strand lines for texture */}
+                {/* Manga strand texture lines */}
                 <g className={styles.ghoulHairLines} fill="none" strokeWidth="0.8" strokeLinecap="round">
                   {[...GHOUL_SIDE, ...GHOUL_BANGS].map((s) => (
                     <path key={s.join()} d={lockLine(s)} />
@@ -420,19 +453,8 @@ export default function KanekiMascot({ lines, label, replayLabel }: Props) {
           </text>
         </svg>
 
-        {/* Shockwave Flash burst on transformation */}
-        <span key={`flash-${animKey}`} className={styles.flash} aria-hidden="true" />
-
-        {/* ── REPLAY BUTTON (The ONLY clickable control) ── */}
-        <button
-          type="button"
-          onClick={handleReplay}
-          className={styles.replay}
-          aria-label={replayLabel}
-          title={replayLabel}
-        >
-          <RotateCcw size={16} aria-hidden="true" />
-        </button>
+        {/* Soft red pulse at the moment of awakening */}
+        <span className={styles.flash} aria-hidden="true" />
       </div>
     </div>
   );

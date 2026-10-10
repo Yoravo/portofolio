@@ -127,17 +127,12 @@ export const uiCopy = {
     contributions: "contributions",
     months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
     mascot: {
-      label: "Kaneki Ken coding on a laptop, Tokyo Ghoul",
-      replay: "Replay transformation and cycle quote",
+      label: "Kaneki Ken coding on a laptop, turning from human to ghoul and back",
       streak: (days: number) => `${days}-day streak... 1000 - 7 = 993. Keep going.`,
       week: (count: number) =>
         `${count} contribution${count === 1 ? "" : "s"} this week. The ghoul hungers for more commits.`,
       idle: "Quiet week... what's 1000 minus 7? Push something.",
-      quips: [
-        "I'm not the protagonist of a novel. I'm a dev who ships on Fridays.",
-        "Never trust a branch that skipped code review.",
-        "The mask comes off when the build turns green.",
-      ],
+      ghoul: "The mask comes on when the build turns red.",
     },
   },
   skills: {

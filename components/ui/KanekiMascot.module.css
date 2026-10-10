@@ -1,5 +1,5 @@
 /* Kaneki Ken mascot. Character colours are fixed (same in both themes);
-   the frame, bubble and button use the ink theme tokens. */
+   the frame and speech bubble use the ink theme tokens. */
 
 .root {
   display: flex;
@@ -12,13 +12,21 @@
   user-select: none;
 }
 
-/* Manga speech bubble: ink outline, slanted tail pointing at his head. */
+/* Manga speech bubble: ink outline, slanted tail pointing at his head.
+   Grid stacking: both lines occupy the same cell, sizing the bubble to
+   the taller line so switching text never triggers layout shift. */
 .bubble {
   position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  align-items: center;
+  justify-items: center;
   border: 2px solid var(--ink);
   border-radius: 1.5rem;
   background: var(--surface);
-  padding: 0.6rem 0.9rem;
+  min-height: 4.25rem;
+  padding: 0.65rem 0.95rem;
   font-size: 0.8rem;
   line-height: 1.45;
   text-align: center;
@@ -49,6 +57,20 @@
   background: var(--surface);
 }
 
+.bubbleHuman,
+.bubbleGhoul {
+  grid-area: 1 / 1 / 2 / 2;
+  display: block;
+}
+
+.bubbleHuman {
+  animation: humanTextFade 12s ease-in-out infinite;
+}
+
+.bubbleGhoul {
+  animation: ghoulTextFade 12s ease-in-out infinite;
+}
+
 /* Portrait frame: a single manga panel. */
 .stage {
   position: relative;
@@ -65,8 +87,6 @@
   width: 100%;
   height: 100%;
   cursor: default;
-  --look-x: 0px;
-  --look-y: 0px;
 }
 
 /* ── HAIR AND CHARACTER ARE STRICTLY NOT CLICKABLE ── */
@@ -79,170 +99,272 @@
 }
 
 /* ══════════════════════════════════════════════════════════════
-   SYNCHRONIZED ANIME TRANSFORMATION (2.4s total)
-   Human Mode (Image #8) → Ghoul Mode (Image #7)
+   SEAMLESS LOOPING ANIME TRANSFORMATION (12s total cycle)
+   0%-38%:   Human Kaneki (Anteiku student)
+   38%-42%:  Anticipation: veins crawl from eyepatch, aura stirs
+   42%-46%:  Awakening: atmospheric flash, hair whitens, mask on
+   46%-84%:  Ghoul Kaneki (White spikes, Kakugan, mask with teeth)
+   84%-90%:  Reversion: aura dims, mask drops, returns to human
+   90%-100%: Human Kaneki restored
    ══════════════════════════════════════════════════════════════ */
 
-/* Human Mode: Visible for first 0.8s, then fades out as ghoul awakens */
 @keyframes humanStateFade {
-  0%, 30% {
+  0%, 38% {
     opacity: 1;
     transform: scale(1);
     filter: brightness(1);
   }
-  48% {
-    opacity: 0.85;
-    filter: brightness(1.2);
+  41% {
+    opacity: 0.9;
+    filter: brightness(1.15) contrast(1.1);
   }
-  64%, 100% {
+  44%, 86% {
     opacity: 0;
     transform: scale(0.98);
-    pointer-events: none;
+    filter: none;
+  }
+  90%, 100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: brightness(1);
   }
 }
 
-/* Ghoul Mode: Hidden initially, shifts from dark ash into snow-white spikes */
 @keyframes ghoulStateFade {
-  0%, 30% {
+  0%, 39% {
     opacity: 0;
     transform: scale(0.96);
   }
-  50% {
-    opacity: 0.7;
-    transform: scale(0.99);
-  }
-  65%, 100% {
+  44%, 84% {
     opacity: 1;
     transform: scale(1);
   }
+  89%, 100% {
+    opacity: 0;
+    transform: scale(0.96);
+  }
 }
 
-/* Hair color shift on the ghoul spikes: dark ash -> silver -> snow white */
+/* Anticipation: capillary veins creep out from beneath the gauze eyepatch */
+@keyframes veinCreepAnim {
+  0%, 32% {
+    opacity: 0;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+  36% {
+    opacity: 0.7;
+    stroke-dashoffset: 0.4;
+  }
+  41% {
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
+  44%, 100% {
+    opacity: 0;
+    stroke-dashoffset: 0;
+  }
+}
+
+.veinCreep {
+  animation: veinCreepAnim 12s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* Ghoul idle: subtle kakugan capillary pulse */
+@keyframes veinPulseAnim {
+  0%, 43% {
+    opacity: 0;
+  }
+  45%, 84% {
+    opacity: 0.9;
+  }
+  88%, 100% {
+    opacity: 0;
+  }
+}
+
+.veinPulse {
+  animation: veinPulseAnim 12s ease-in-out infinite;
+}
+
+/* Hair color shift on the ghoul spikes: dark roots -> lavender -> snow white */
 @keyframes ghoulHairWhiten {
-  0%, 30% {
-    fill: #1a1824;
+  0%, 39% {
+    fill: #15141e;
   }
-  45% {
-    fill: #544f68;
+  42% {
+    fill: #4c4660;
   }
-  62% {
-    fill: #b2b5d0;
-  }
-  78%, 100% {
+  46%, 84% {
     fill: #ffffff;
+  }
+  89%, 100% {
+    fill: #15141e;
   }
 }
 
 @keyframes ghoulHairShadeWhiten {
-  0%, 30% {
+  0%, 39% {
     fill: #0c0b12;
   }
-  45% {
-    fill: #2d293d;
+  42% {
+    fill: #282438;
   }
-  62% {
-    fill: #787a96;
-  }
-  78%, 100% {
+  46%, 84% {
     fill: #a6a9c6;
+  }
+  89%, 100% {
+    fill: #0c0b12;
   }
 }
 
 @keyframes ghoulHairLinesWhiten {
-  0%, 30% {
+  0%, 39% {
     stroke: #0c0b12;
   }
-  50% {
-    stroke: #423d56;
+  42% {
+    stroke: #3c374e;
   }
-  78%, 100% {
+  46%, 84% {
     stroke: #c8cbdc;
+  }
+  89%, 100% {
+    stroke: #0c0b12;
   }
 }
 
-/* Kakugan awakening: Blood red glow fires up */
+/* Kakugan awakening: dark sclera snaps in, crimson pupil pulses */
 @keyframes kakuganAwaken {
-  0%, 32% {
+  0%, 39% {
     opacity: 0;
-    transform: scale(0.8);
+    transform: scale(0.85);
   }
-  52% {
-    opacity: 0.8;
+  43% {
+    opacity: 0.85;
     transform: scale(1.08);
     filter: drop-shadow(0 0 10px #ff1744);
   }
-  75%, 100% {
+  47%, 84% {
     opacity: 1;
     transform: scale(1);
     filter: drop-shadow(0 0 4px #ff1744);
+  }
+  88%, 100% {
+    opacity: 0;
+    transform: scale(0.85);
+    filter: none;
   }
 }
 
 /* Red Ghoul Aura in background */
 @keyframes auraAwaken {
-  0%, 32% {
+  0%, 38% {
     opacity: 0;
     transform: scale(0.85);
   }
-  60% {
-    opacity: 0.7;
+  44% {
+    opacity: 0.8;
     transform: scale(1.05);
   }
-  80%, 100% {
-    opacity: 0.85;
+  48%, 82% {
+    opacity: 0.6;
     transform: scale(1);
   }
+  88%, 100% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
 }
 
-/* Flash shockwave burst at peak transformation (around 1.4s) */
+/* Soft red pulse at moment of transformation */
 @keyframes flashShockwave {
-  0%, 50% {
+  0%, 41% {
     opacity: 0;
-    transform: scale(0.9);
+    transform: scale(0.92);
   }
-  58% {
-    opacity: 0.9;
-    transform: scale(1.05);
+  43% {
+    opacity: 0.8;
+    transform: scale(1.02);
   }
-  74% {
-    opacity: 0.25;
+  46% {
+    opacity: 0;
     transform: scale(1.18);
   }
-  100% {
+  86% {
     opacity: 0;
-    transform: scale(1.25);
+    transform: scale(0.92);
+  }
+  88% {
+    opacity: 0.45;
+    transform: scale(1.02);
+  }
+  91%, 100% {
+    opacity: 0;
+    transform: scale(1.15);
   }
 }
 
+/* Speech bubble cross-fade */
+@keyframes humanTextFade {
+  0%, 38% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  42%, 87% {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  91%, 100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ghoulTextFade {
+  0%, 41% {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  45%, 83% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  87%, 100% {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+}
+
+/* Applied transformation loops */
 .humanState {
-  animation: humanStateFade 2.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: humanStateFade 12s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
 .ghoulState {
-  animation: ghoulStateFade 2.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: ghoulStateFade 12s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
 .ghoulHairMain {
-  animation: ghoulHairWhiten 2.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: ghoulHairWhiten 12s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
 .ghoulHairShade {
-  animation: ghoulHairShadeWhiten 2.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: ghoulHairShadeWhiten 12s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
 .ghoulHairLines {
-  animation: ghoulHairLinesWhiten 2.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: ghoulHairLinesWhiten 12s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
 .kakuganEye {
-  transform-origin: 137px 103px;
-  animation: kakuganAwaken 2.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  transform-origin: 137px 102px;
+  animation: kakuganAwaken 12s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
 .aura {
   pointer-events: none;
   transform-origin: 120px 96px;
-  animation: auraAwaken 2.4s ease-out forwards;
+  animation: auraAwaken 12s ease-out infinite;
 }
 
 .flash {
@@ -252,11 +374,11 @@
   opacity: 0;
   background: radial-gradient(
     circle at 50% 42%,
-    rgba(255, 255, 255, 0.95) 0%,
-    rgba(255, 25, 60, 0.6) 35%,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(255, 25, 60, 0.5) 35%,
     transparent 72%
   );
-  animation: flashShockwave 2.4s ease-out forwards;
+  animation: flashShockwave 12s ease-out infinite;
 }
 
 /* ── IDLE ANIMATIONS (BREATHING, BLINKING, TYPING) ── */
@@ -300,17 +422,11 @@
   animation: breathe 4s ease-in-out infinite;
 }
 
-/* fill-box: the origin is the eye's own box, so it closes in place */
+/* fill-box: the origin is the eye's own bounding box */
 .blink {
   transform-box: fill-box;
   transform-origin: center;
   animation: blink 4.8s infinite;
-}
-
-/* Irises track cursor */
-.look {
-  transform: translate(var(--look-x), var(--look-y));
-  transition: transform 100ms ease-out;
 }
 
 .handL,
@@ -331,45 +447,11 @@
   font-family: var(--font-jetbrains), monospace;
   font-size: 13px;
   font-weight: 700;
-  /* the laptop is character art, so its logo stays fixed in both themes */
   fill: #ff4458;
   animation: flicker 3s ease-in-out infinite;
 }
 
-/* ── REPLAY BUTTON (The ONLY clickable control) ── */
-.replay {
-  position: absolute;
-  z-index: 10;
-  right: 0.5rem;
-  bottom: 0.5rem;
-  display: inline-flex;
-  width: 2.75rem;
-  height: 2.75rem;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid var(--ink);
-  background: var(--surface);
-  color: var(--ink);
-  cursor: pointer;
-  transition:
-    background-color 150ms ease,
-    border-color 150ms ease,
-    color 150ms ease,
-    transform 150ms ease;
-}
-
-.replay:is(:hover, :focus-visible) {
-  border-color: var(--accent);
-  background: var(--accent);
-  color: var(--accent-ink);
-  transform: rotate(-45deg);
-}
-
-.replay:active {
-  transform: scale(0.92);
-}
-
-/* ── Reduced Motion ── */
+/* ── Reduced Motion: Stable complete Ghoul form ── */
 @media (prefers-reduced-motion: reduce) {
   .humanState {
     display: none !important;
@@ -403,12 +485,31 @@
   }
 
   .aura {
-    opacity: 0.7 !important;
+    opacity: 0.55 !important;
+    animation: none !important;
+  }
+
+  .veinCreep {
+    display: none !important;
+  }
+
+  .veinPulse {
+    opacity: 1 !important;
     animation: none !important;
   }
 
   .flash {
     display: none !important;
+  }
+
+  .bubbleHuman {
+    display: none !important;
+  }
+
+  .bubbleGhoul {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
   }
 
   .breathe,
@@ -417,9 +518,5 @@
   .handR,
   .logo {
     animation: none !important;
-  }
-
-  .look {
-    transform: none !important;
   }
 }
